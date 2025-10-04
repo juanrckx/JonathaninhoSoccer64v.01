@@ -8,6 +8,7 @@ GREEN = 15, 30, 15
 YELLOW = 220, 220, 0
 WHITE = 255, 255, 255
 LIGHT_BLUE = 0, 200, 255
+BLUE = 0, 0, 255
 
 title_font = pygame.font.Font(None, 48)
 header_font = pygame.font.Font(None, 36)
@@ -84,9 +85,9 @@ class AboutScreen:
     def draw_back_button(self):
         back_rect = pygame.Rect(50, 30, 120, 40)
         pygame.draw.rect(screen, HIGHLIGHT_COLOR, back_rect, border_radius=10)
-        pygame.draw.rect(screen, (255, 255, 255), back_rect, 2, border_radius=10)
+        pygame.draw.rect(screen, WHITE, back_rect, 2, border_radius=10)
 
-        back_text = text_font.render("← Regresar", True, (255, 255, 255))
+        back_text = text_font.render("← Regresar", True, WHITE)
         screen.blit(back_text, (back_rect.x + 10, back_rect.y + 8))
 
         return back_rect
@@ -148,7 +149,7 @@ class AboutScreen:
         # Mensaje de ayuda
         y_offset += 20
         help_text = small_font.render("Presione ESC o haga clic en 'Regresar' para volver al menú principal", True,
-                                      (200, 200, 200))
+                                      WHITE)
         screen.blit(help_text, (SCREEN_WIDTH // 2 - help_text.get_width() // 2, SCREEN_HEIGHT - 25))
 
         pygame.display.flip()
