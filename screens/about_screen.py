@@ -1,6 +1,4 @@
-import pygame
 import sys
-import os
 from config import *
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -25,6 +23,8 @@ class AboutScreen:
     def __init__(self):
         self.running = True
         self.title_image = self.load_image(PROJECT_INFO["title_image"])
+        self.background_image = self.load_image("background_image.png")
+
 
         # Escalar la imagen del título si es necesario
         original_width, original_height = self.title_image.get_size()
@@ -60,6 +60,11 @@ class AboutScreen:
         image_path = os.path.join(IMAGES_DIR, filename)
         return pygame.image.load(image_path)
 
+    def load_background_image(self):
+        """Carga la imagen de fondo"""
+        image_path = os.path.join(IMAGES_DIR, "background_image.png")
+        return pygame.image.load(image_path)
+
     def draw_author_photo(self, x, y, photo_filename, author_name):
         photo_path = os.path.join(IMAGES_DIR, photo_filename)
         photo = pygame.image.load(photo_path)
@@ -93,11 +98,16 @@ class AboutScreen:
 
     def draw(self):
         """Dibuja toda la pantalla Acerca de"""
+
         #Actualizar efecto de respiracion
         self.update_breath()
         # Fondo
-        screen.fill(BACKGROUND_COLOR)
+        screen.blit(self.background_image, (0, 0))
 
+        # Capa semi-transparente para mejorar legibilidad del texto
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 128))  # Negro semi-transparente (alpha = 128/255)
+        screen.blit(overlay, (0, 0))
         # Botones
         back_rect = self.draw_back_button()
         instructions_rect = self.draw_instructions_button()
