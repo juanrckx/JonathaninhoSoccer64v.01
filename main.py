@@ -22,11 +22,12 @@ def main():
     main_menu = MainMenu()
     about_screen = AboutScreen()
     instructions_screen = InstructionsScreen()
-    config_screen = ConfigScreen()
-    game_config = None
+
 
     # Navegación entre pantallas
     current_screen = "main_menu"
+    config_screen = ConfigScreen()
+    game_config = None
 
     running = True
     while running:
@@ -40,6 +41,13 @@ def main():
                 current_screen = "config"
             elif action == "quit":
                 running = False
+
+        elif current_screen == "about":
+            action = about_screen.run()
+            if action == "instructions":
+                current_screen = "instructions"
+            elif action == "back" or action == "quit":
+                current_screen = "main_menu"
 
         elif current_screen == "config":
             action, config = config_screen.run()

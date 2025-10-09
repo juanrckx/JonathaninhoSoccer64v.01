@@ -3,7 +3,7 @@ import os
 
 pygame.init()
 
-GREEN = 15, 30, 15
+GREEN = 124,252,0
 YELLOW = 220, 220, 0
 WHITE = 255, 255, 255
 LIGHT_BLUE = 0, 200, 255

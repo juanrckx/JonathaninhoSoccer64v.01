@@ -40,7 +40,7 @@ class ConfigScreen:
         return [
             {
                 "name": "Real Madrid",
-                "shield": "shield_real.png",
+                "shield": "team2.png",
                 "shooters": [
                     {"name": "Jugador 1A", "photo": "shooter1a.jpg"},
                     {"name": "Jugador 2A", "photo": "shooter2a.jpg"},
@@ -54,7 +54,7 @@ class ConfigScreen:
             },
             {
                 "name": "Barcelona",
-                "shield": "shield_barca.png",
+                "shield": "team1.png",
                 "shooters": [
                     {"name": "Jugador 1B", "photo": "shooter1b.jpg"},
                     {"name": "Jugador 2B", "photo": "shooter2b.jpg"},
@@ -68,7 +68,7 @@ class ConfigScreen:
             },
             {
                 "name": "Chelsea",
-                "shield": "shield_chelsea.png",
+                "shield": "team3.png",
                 "shooters": [
                     {"name": "Jugador 1C", "photo": "shooter1c.jpg"},
                     {"name": "Jugador 2C", "photo": "shooter2c.jpg"},
@@ -109,7 +109,7 @@ class ConfigScreen:
         visit_shield = self.load_image(visit_team["shield"])
 
         if local_shield:
-            visit_shield = pygame.transform.scale(visit_shield, (150, 150))
+            local_shield = pygame.transform.scale(local_shield, (150, 150))
             self.screen.blit(local_shield, (SCREEN_CENTER[0] - 400, 150))
 
         if visit_shield:
@@ -121,7 +121,7 @@ class ConfigScreen:
         visit_name = text_font.render(visit_team["name"], True, WHITE)
 
         self.screen.blit(local_name, (SCREEN_CENTER[0] - 400, 320))
-        self.screen.blit(visit_name, (SCREEN_CENTER//2[0] + 200, 320))
+        self.screen.blit(visit_name, (SCREEN_CENTER[0] + 200, 320))
 
         arrow_text = small_font.render("Use ←/↑/→/↓ para cambiar equipos", True, WHITE)
         self.screen.blit(arrow_text, (SCREEN_CENTER[0] - arrow_text.get_width()//2, 360))

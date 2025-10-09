@@ -96,7 +96,7 @@ class InstructionsScreen:
 
         # Título
         title_text = title_font.render("Instrucciones del Juego", True, TITLE_COLOR)
-        screen.blit(title_text, (SCREEN_CENTER - title_text.get_width() // 2, 20))
+        screen.blit(title_text, (SCREEN_WIDTH // 2 - title_text.get_width() // 2, 20))
 
         # Aplicar scroll offset
         base_y = 100 - self.scroll_offset
