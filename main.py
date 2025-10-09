@@ -9,6 +9,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'screens'))
 from config import *
 from screens.main_menu import MainMenu
 from screens.about_screen import AboutScreen
+from screens.config_screen import ConfigScreen
 from screens.instructions_screen import InstructionsScreen
 
 
@@ -21,6 +22,8 @@ def main():
     main_menu = MainMenu()
     about_screen = AboutScreen()
     instructions_screen = InstructionsScreen()
+    config_screen = ConfigScreen()
+    game_config = None
 
     # Navegación entre pantallas
     current_screen = "main_menu"
@@ -32,16 +35,18 @@ def main():
             if action == "about":
                 current_screen = "about"
             elif action == "new_game":
-                print("Ir a nueva partida...")  # TODO: Implementar
+                current_screen = "config"
             elif action == "config":
-                print("Ir a configuración...")  # TODO: Implementar
+                current_screen = "config"
             elif action == "quit":
                 running = False
 
-        elif current_screen == "about":
-            action = about_screen.run()
-            if action == "instructions":
-                current_screen = "instructions"
+        elif current_screen == "config":
+            action, config = config_screen.run()
+            if action == "start_game":
+                game_config = config
+                print("Configuracion:", game_config)
+                current_screen = "coin_toss"
             elif action == "back" or action == "quit":
                 current_screen = "main_menu"
 

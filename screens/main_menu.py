@@ -62,11 +62,11 @@ class MainMenu:
 
         # Logo/Título
         if self.title_image:
-            title_rect = self.title_image.get_rect(center=((SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)[0], 150))
+            title_rect = self.title_image.get_rect(center=(SCREEN_CENTER[0], 150))
             self.screen.blit(self.title_image, title_rect)
         else:
             title_text = title_font.render("Jonathaninho Soccer 64", True, YELLOW)
-            title_rect = title_text.get_rect(center=((SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)[0], 150))
+            title_rect = title_text.get_rect(center=(SCREEN_CENTER[0], 150))
             self.screen.blit(title_text, title_rect)
 
         # Botones
