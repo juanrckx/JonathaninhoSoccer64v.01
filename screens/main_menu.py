@@ -25,21 +25,32 @@ class MainMenu:
     def load_image(self, file_name):
         """Carga la imagen de fondo"""
         image_path = os.path.join(IMAGES_DIR, file_name)
-        return pygame.image.load(image_path)
+        if os.path.exists(image_path):
+            image = pygame.image.load(image_path)
+            #Escalar imagen
+            new_width = int(image.get_width() * SCALE_FACTOR)
+            new_height = int(image.get_height() * SCALE_FACTOR)
+            return pygame.image.load(image_path)
+        else:
+            return None
 
-    def load_background_image(self):
+    def load_background_image(self, file_name):
         """Carga la imagen de fondo"""
-        image_path = os.path.join(IMAGES_DIR, "background_image.png")
-        return pygame.image.load(image_path)
+        image_path = os.path.join(IMAGES_DIR, file_name)
+        if os.path.exists(image_path):
+            background = pygame.image.load(image_path)
+            return pygame.transform.scale(background, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        return None
 
     def draw_glowing_button(self, text, rect, base_color, glow_color):
         glow_intensity = abs(pygame.time.get_ticks() % 2000 - 1000) / 1000
         current_glow = [int(base_color[i] + (glow_color[i] - base_color[i]) * glow_intensity) for i in range(3)]
 
-        pygame.draw.rect(self.screen, current_glow, rect, border_radius=15)
-        pygame.draw.rect(self.screen, WHITE, rect, 3, border_radius=15)
+        pygame.draw.rect(self.screen, current_glow, rect, border_radius=int(15*SCALE_FACTOR))
+        pygame.draw.rect(self.screen, WHITE, rect, int(3 * SCALE_FACTOR), border_radius=int(15 * SCALE_FACTOR))
 
         # Texto del botón
+        button_font = pygame.font.Font(None, int(32 * SCALE_FACTOR))
         text_surface = text_font.render(text, True, WHITE)
         text_rect = text_surface.get_rect(center=rect.center)
         self.screen.blit(text_surface, text_rect)
@@ -58,21 +69,23 @@ class MainMenu:
             self.screen.blit(overlay, (0, 0))
         else:
             # Fallback: fondo verde sólido si no hay imagen
-            self.screen.fill(GREEN)
+            self.screen.fill(DARK_GREEN)
+
+        title_y = responsive_y(150)
 
         # Logo/Título
         if self.title_image:
-            title_rect = self.title_image.get_rect(center=(SCREEN_CENTER[0], 150))
+            title_rect = self.title_image.get_rect(center=(SCREEN_CENTER[0], title_y))
             self.screen.blit(self.title_image, title_rect)
         else:
             title_text = title_font.render("Jonathaninho Soccer 64", True, YELLOW)
-            title_rect = title_text.get_rect(center=(SCREEN_CENTER[0], 150))
+            title_rect = title_text.get_rect(center=(SCREEN_CENTER[0], title_y))
             self.screen.blit(title_text, title_rect)
 
         # Botones
-        button_width, button_height = 300, 60
-        button_y_start = 350
-        button_spacing = 80
+        button_width, button_height = responsive_x(300), responsive_y(60)
+        button_y_start = responsive_y(350)
+        button_spacing = responsive_y(80)
 
         buttons = [
             {"text": "Nueva Partida", "action": "new_game", "rect": pygame.Rect(0, 0, button_width, button_height)},
@@ -83,7 +96,7 @@ class MainMenu:
 
         # Posicionar botones
         for i, button in enumerate(buttons):
-            button["rect"].center = ((SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)[0], button_y_start + i * button_spacing)
+            button["rect"].center = (SCREEN_CENTER[0], button_y_start + i * button_spacing)
 
         # Dibujar botones y detectar hover
         mouse_pos = pygame.mouse.get_pos()
@@ -100,8 +113,9 @@ class MainMenu:
                 hovered_action = button["action"]
 
         # Texto de ayuda
+        help_y = responsive_y(SCREEN_HEIGHT - 50)
         help_text = small_font.render("Seleccione una opción con el mouse", True, (200, 200, 200))
-        help_rect = help_text.get_rect(center=((SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)[0], SCREEN_HEIGHT - 50))
+        help_rect = help_text.get_rect(center=(SCREEN_CENTER[0], help_y))
         self.screen.blit(help_text, help_rect)
 
         pygame.display.flip()
@@ -134,12 +148,5 @@ class MainMenu:
 
         while self.running:
             action = self.handle_events()
-
-            if action != "main_menu":
-                # Detener música al salir del menú
-                if self.background_music:
-                    self.background_music.stop()
-                return action
-
             self.draw()
             pygame.time.Clock().tick(60)

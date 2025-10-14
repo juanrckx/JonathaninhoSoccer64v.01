@@ -58,6 +58,14 @@ class AboutScreen:
     def load_image(self, filename):
         """Carga una imagen desde la carpeta images"""
         image_path = os.path.join(IMAGES_DIR, filename)
+        if os.path.exists(image_path):
+            image = pygame.image.load(image_path)
+            #Escalar
+            new_width = int(image.get_width() * SCALE_FACTOR)
+            new_height = int(image.get_height() * SCALE_FACTOR)
+            return pygame.transform.scale(image, (new_width, new_height))
+        else:
+            return None
         return pygame.image.load(image_path)
 
     def load_background_image(self):
@@ -68,23 +76,14 @@ class AboutScreen:
     def draw_author_photo(self, x, y, photo_filename, author_name):
         photo_path = os.path.join(IMAGES_DIR, photo_filename)
         photo = pygame.image.load(photo_path)
-        photo = pygame.transform.scale(photo, (120, 150))
+        photo_width, photo_height = responsive_size(120, 150)
+        photo = pygame.transform.scale(photo, photo_width, photo_height)
         screen.blit(photo, (x, y))
 
         pygame.draw.rect(screen, HIGHLIGHT_COLOR, (x - 5, y - 5, 130, 160), 2)
 
         name_text = small_font.render(author_name, True, TEXT_COLOR)
         screen.blit(name_text, (x - 10, y + 160))
-
-    def draw_back_button(self):
-        back_rect = pygame.Rect(50, 30, 120, 40)
-        pygame.draw.rect(screen, HIGHLIGHT_COLOR, back_rect, border_radius=10)
-        pygame.draw.rect(screen, WHITE, back_rect, 2, border_radius=10)
-
-        back_text = text_font.render("Regresar", True, WHITE)
-        screen.blit(back_text, (back_rect.x + 10, back_rect.y + 10))
-
-        return back_rect
 
     def draw_instructions_button(self):
         instructions_rect = pygame.Rect(SCREEN_WIDTH - 170, 30, 120, 40)
@@ -109,29 +108,29 @@ class AboutScreen:
         overlay.fill((0, 0, 0, 128))  # Negro semi-transparente (alpha = 128/255)
         screen.blit(overlay, (0, 0))
         # Botones
-        back_rect = self.draw_back_button()
+        back_rect = responsive_rect(50, 30, 120, 40)
         instructions_rect = self.draw_instructions_button()
 
         # Título principal (imagen)
         if self.title_image:
-            title_x = SCREEN_WIDTH // 2 - self.title_image.get_width() // 2
-            title_y = -25
+            title_x = SCREEN_CENTER[0] - self.title_image.get_width() // 2
+            title_y = responsive_y(-25)
             screen.blit(self.title_image, (title_x, title_y))
-            y_offset = 225 # Espacio después del título
+            y_offset = responsive_y(225) # Espacio después del título
         else:
             # Fallback: usar texto si no hay imagen
             title_text = title_font.render(PROJECT_INFO["title"], True, TITLE_COLOR)
             screen.blit(title_text, (SCREEN_WIDTH // 2 - title_text.get_width() // 2, 20))
-            y_offset = 100
+            y_offset = responsive_y(100)
 
         # Información de autores
         authors_header = header_font.render("Desarrollado por:", True, HIGHLIGHT_COLOR)
         screen.blit(authors_header, (SCREEN_WIDTH // 2 - authors_header.get_width() // 2, y_offset))
-        y_offset += 35
+        y_offset += responsive_y(35)
 
         # Fotos de autores
-        author1_x = SCREEN_WIDTH // 2 - 150
-        author2_x = SCREEN_WIDTH // 2 + 30
+        author1_x = responsive_x(SCREEN_WIDTH // 2 - 150)
+        author2_x = responsive_x(SCREEN_WIDTH // 2 + 30)
 
         for i, author in enumerate(PROJECT_INFO["authors"]):
             x_pos = author1_x if i == 0 else author2_x
@@ -141,7 +140,7 @@ class AboutScreen:
             id_text = small_font.render(f"Carnet: {author['carnet']}", True, TEXT_COLOR)
             screen.blit(id_text, (x_pos - 10, y_offset + 180))
 
-        y_offset += 200
+        y_offset += responsive_y(200)
 
         # Información académica
         info_lines = [
@@ -156,7 +155,7 @@ class AboutScreen:
         for line in info_lines:
             info_text = text_font.render(line, True, TEXT_COLOR)
             screen.blit(info_text, (SCREEN_WIDTH // 2 - info_text.get_width() // 2, y_offset))
-            y_offset += 35
+            y_offset += responsive_y(35)
 
         # Mensaje de ayuda
         help_text = "Para instrucciones detalladas, presione el botón 'Instrucciones'"
