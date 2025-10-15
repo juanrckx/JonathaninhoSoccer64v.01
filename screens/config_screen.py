@@ -123,7 +123,7 @@ class ConfigScreen:
         self.screen.blit(local_name, (SCREEN_CENTER[0] - 400, 320))
         self.screen.blit(visit_name, (SCREEN_CENTER[0] + 200, 320))
 
-        arrow_text = small_font.render("Use ←/↑/→/↓ para cambiar equipos", True, WHITE)
+        arrow_text = small_font.render("Use las flechas para cambiar equipos", True, WHITE)
         self.screen.blit(arrow_text, (SCREEN_CENTER[0] - arrow_text.get_width()//2, 360))
 
     def draw_player_selection(self):
@@ -188,7 +188,8 @@ class ConfigScreen:
 
         #Boton Auto
         auto_color = GREEN if self.change_mode == "auto" else BLUE
-        auto_rect = pygame.Rect(SCREEN_CENTER[0] - 50, 550, 100, 40)
+        auto_rect = pygame.Rect(SCREEN_CENTER[0] + 320, 550, 100, 40)
+        auto_rect = pygame.Rect(SCREEN_CENTER[0] + 320, 550, 100, 40)
         pygame.draw.rect(screen, auto_color, auto_rect, border_radius=10)
         pygame.draw.rect(screen, WHITE, auto_rect, 2, border_radius=10)
 
@@ -197,7 +198,7 @@ class ConfigScreen:
 
         #Boton Manual
         manual_color = GREEN if self.change_mode == "manual" else BLUE
-        manual_rect = pygame.Rect(SCREEN_CENTER[0] + 60, 550, 100, 40)
+        manual_rect = pygame.Rect(SCREEN_CENTER[0] + 210, 550, 100, 40)
         pygame.draw.rect(self.screen, manual_color, manual_rect, border_radius=10)
         pygame.draw.rect(self.screen, WHITE, manual_rect, 2, border_radius=10)
 
@@ -208,7 +209,7 @@ class ConfigScreen:
         return auto_rect, manual_rect
 
     def draw_complete_button(self):
-        complete_rect = pygame.Rect(SCREEN_CENTER[0] - 100, SCREEN_HEIGHT - 80, 200, 50)
+        complete_rect = pygame.Rect(SCREEN_CENTER[0] + 290, SCREEN_HEIGHT - 80, 200, 50)
         pygame.draw.rect(self.screen, GREEN, complete_rect, border_radius=15)
         pygame.draw.rect(self.screen, WHITE, complete_rect, 3, border_radius=15)
 
