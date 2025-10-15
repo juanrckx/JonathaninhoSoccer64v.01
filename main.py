@@ -11,6 +11,7 @@ from screens.main_menu import MainMenu
 from screens.about_screen import AboutScreen
 from screens.config_screen import ConfigScreen
 from screens.instructions_screen import InstructionsScreen
+from screens.coin_toss_screen import CoinTossScreen
 
 
 def main():
@@ -27,6 +28,7 @@ def main():
     # Navegación entre pantallas
     current_screen = "main_menu"
     config_screen = ConfigScreen()
+    coin_toss_screen = None
     game_config = None
 
     running = True
@@ -54,7 +56,16 @@ def main():
             if action == "start_game":
                 game_config = config
                 print("Configuracion:", game_config)
+                coin_toss_screen = CoinTossScreen(game_config)
                 current_screen = "coin_toss"
+            elif action == "back" or action == "quit":
+                current_screen = "main_menu"
+
+        elif current_screen == "coin_toss":
+            action, updated_config = coin_toss_screen.run()
+            if action == "start_game":
+                game_config = updated_config
+                current_screen = "game"
             elif action == "back" or action == "quit":
                 current_screen = "main_menu"
 

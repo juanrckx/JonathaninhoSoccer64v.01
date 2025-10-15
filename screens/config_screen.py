@@ -325,8 +325,8 @@ class ConfigScreen:
     def get_configuration(self):
         #Retorna la configuracion seleccionada
 
-        return {"team_local": self.selected_team_local,
-                "team_visit": self.selected_team_visit,
+        return {"team_local": self.teams[self.selected_team_local],
+                "team_visit": self.teams[self.selected_team_visit],
                 "shooter_local": self.selected_shooter_local,
                 "shooter_visit": self.selected_shooter_visit,
                 "goalie_local": self.selected_goalie_local,
