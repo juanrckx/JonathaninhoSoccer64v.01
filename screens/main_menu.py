@@ -76,7 +76,6 @@ class MainMenu:
 
         buttons = [
             {"text": "Nueva Partida", "action": "new_game", "rect": pygame.Rect(0, 0, button_width, button_height)},
-            {"text": "Configuración", "action": "config", "rect": pygame.Rect(0, 0, button_width, button_height)},
             {"text": "Acerca de", "action": "about", "rect": pygame.Rect(0, 0, button_width, button_height)},
             {"text": "Salir", "action": "quit", "rect": pygame.Rect(0, 0, button_width, button_height)}
         ]

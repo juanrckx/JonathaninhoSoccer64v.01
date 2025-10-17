@@ -77,7 +77,7 @@ class AboutScreen:
         screen.blit(name_text, (x - 10, y + 160))
 
     def draw_back_button(self):
-        back_rect = pygame.Rect(50, 30, 120, 40)
+        back_rect = pygame.Rect(50, 30, 105, 40)
         pygame.draw.rect(screen, HIGHLIGHT_COLOR, back_rect, border_radius=10)
         pygame.draw.rect(screen, WHITE, back_rect, 2, border_radius=10)
 
@@ -87,7 +87,7 @@ class AboutScreen:
         return back_rect
 
     def draw_instructions_button(self):
-        instructions_rect = pygame.Rect(SCREEN_WIDTH - 170, 30, 120, 40)
+        instructions_rect = pygame.Rect(SCREEN_WIDTH - 170, 30, 145, 40)
         pygame.draw.rect(screen, HIGHLIGHT_COLOR, instructions_rect, border_radius=10)
         pygame.draw.rect(screen, WHITE, instructions_rect, 2, border_radius=10)
 

@@ -89,8 +89,8 @@ class CoinTossScreen:
             local_shield = pygame.transform.scale(local_shield, (80, 80))
             visit_shield = pygame.transform.scale(visit_shield, (80, 80))
 
-            screen.blit(local_shield, (SCREEN_CENTER[0] - 350, 140))
-            screen.blit(visit_shield, (SCREEN_CENTER[0] + 270, 140))
+            screen.blit(local_shield, (SCREEN_CENTER[0] - 400, 140))
+            screen.blit(visit_shield, (SCREEN_CENTER[0] + 230, 140))
         except:
             pass
 

@@ -139,10 +139,10 @@ class ConfigScreen:
         visit_goalie = visit_team["goalies"][self.selected_goalie_visit]
 
         #Dibujar seccion local
-        self.draw_player_section("LOCAL", local_shooter, local_goalie, SCREEN_CENTER[0] - 300, 450)
+        self.draw_player_section(local_shooter, local_goalie, SCREEN_CENTER[0] - 300, 450)
 
         #Dibujar seccion visitante
-        self.draw_player_section("VISITANTE", visit_shooter, visit_goalie, SCREEN_CENTER[0] + 100, 450)
+        self.draw_player_section(visit_shooter, visit_goalie, SCREEN_CENTER[0] + 100, 450)
 
         #Indicador de seleccion actual
         mode_text = small_font.render(f"Seleccionando: {self.selection_mode.upper()}", True, YELLOW)
@@ -159,38 +159,30 @@ class ConfigScreen:
         else:
             return None
 
-    def draw_player_section(self, team_type, shooter, goalie, x ,y):
-        #Titulo del equipo
-        team_text = header_font.render(team_type, True, LIGHT_BLUE)
-        self.screen.blit(team_text, (x, y))
-
+    def draw_player_section(self, shooter, goalie, x ,y):
         #Artillero
         shooter_photo = self.load_player_photo(shooter["photo"])
         if shooter_photo:
             shooter_photo = pygame.transform.scale(shooter_photo, (80, 100))
-            self.screen.blit(shooter_photo, (x, y + 40))
+            self.screen.blit(shooter_photo, (x, y - 55))
 
         shooter_text = text_font.render("Artillero: ", True, WHITE)
-        self.screen.blit(shooter_text, (x + 90, y + 50))
+        self.screen.blit(shooter_text, (x + 90, y - 40))
 
         shooter_name = text_font.render(shooter["name"], True, YELLOW)
-        self.screen.blit(shooter_name, (x + 90, y + 70))
+        self.screen.blit(shooter_name, (x + 90, y - 20))
 
         #Portero
         goalie_photo = self.load_player_photo(goalie["photo"])
         if goalie_photo:
             goalie_photo = pygame.transform.scale(goalie_photo, (80, 100))
-            self.screen.blit(goalie_photo, (x, y + 140))
+            self.screen.blit(goalie_photo, (x, y + 80))
 
         goalie_text = text_font.render("Portero:", True, WHITE)
         self.screen.blit(goalie_text, (x, y + 140))
 
         goalie_name = text_font.render(goalie["name"], True, YELLOW)
         self.screen.blit(goalie_name, (x, y + 180))
-
-        #Agregar fotos de jugadores
-        #shooter_photo = self.load_image(shooter["photo"])
-        #goalie_photo = self.load_image(goalie["photo"])
 
 
 
