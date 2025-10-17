@@ -42,9 +42,9 @@ class ConfigScreen:
                 "name": "Real Madrid",
                 "shield": "team2.png",
                 "shooters": [
-                    {"name": "Jugador 1A", "photo": "shooter1a.jpg"},
-                    {"name": "Jugador 2A", "photo": "shooter2a.jpg"},
-                    {"name": "Jugador 3A", "photo": "shooter3a.jpg"}
+                    {"name": "Cristiano Ronaldo", "photo": "shooter1a.jpg"},
+                    {"name": "Luka Modrić", "photo": "shooter2a.jpg"},
+                    {"name": "Marcelo Vieira", "photo": "shooter3a.jpg"}
                 ],
                 "goalies": [
                     {"name": "Portero 1A", "photo": "goalie1a.jpg"},
@@ -56,9 +56,9 @@ class ConfigScreen:
                 "name": "Barcelona",
                 "shield": "team1.png",
                 "shooters": [
-                    {"name": "Jugador 1B", "photo": "shooter1b.jpg"},
-                    {"name": "Jugador 2B", "photo": "shooter2b.jpg"},
-                    {"name": "Jugador 3B", "photo": "shooter3b.jpg"}
+                    {"name": "Ronaldinho Gaúcho", "photo": "shooter1b.jpg"},
+                    {"name": "Neymar", "photo": "shooter2b.jpg"},
+                    {"name": "Lionel Messi", "photo": "shooter3b.jpg"}
                 ],
                 "goalies": [
                     {"name": "Portero 1B", "photo": "goalie1b.jpg"},
@@ -70,9 +70,9 @@ class ConfigScreen:
                 "name": "Chelsea",
                 "shield": "team3.png",
                 "shooters": [
-                    {"name": "Jugador 1C", "photo": "shooter1c.jpg"},
-                    {"name": "Jugador 2C", "photo": "shooter2c.jpg"},
-                    {"name": "Jugador 3C", "photo": "shooter3c.jpg"}
+                    {"name": "N'Golo Kanté", "photo": "shooter1c.jpg"},
+                    {"name": "Cole Palmer", "photo": "shooter2c.jpg"},
+                    {"name": "Eden Hazard", "photo": "shooter3c.jpg"}
                 ],
                 "goalies": [
                     {"name": "Portero 1C", "photo": "goalie1c.jpg"},
@@ -84,7 +84,6 @@ class ConfigScreen:
 
     def load_image(self, filename):
         image_path = os.path.join(IMAGES_DIR, filename)
-        image = pygame.image.load(image_path)
         return pygame.image.load(image_path)
 
     def draw_team_selection(self):
@@ -100,7 +99,7 @@ class ConfigScreen:
         visit_text = header_font.render("Equipo Visitante", True, LIGHT_BLUE)
         self.screen.blit(visit_text, (SCREEN_CENTER[0] + 200, 100))
 
-        #Mostrae quipos seleccionados
+        #Mostrar quipos seleccionados
         local_team = self.teams[self.selected_team_local]
         visit_team = self.teams[self.selected_team_visit]
 
@@ -123,13 +122,10 @@ class ConfigScreen:
         self.screen.blit(local_name, (SCREEN_CENTER[0] - 400, 320))
         self.screen.blit(visit_name, (SCREEN_CENTER[0] + 200, 320))
 
-        arrow_text = small_font.render("Use las flechas para cambiar equipos", True, WHITE)
-        self.screen.blit(arrow_text, (SCREEN_CENTER[0] - arrow_text.get_width()//2, 360))
-
     def draw_player_selection(self):
         #Titulo
         title_text = title_font.render("Seleccion de Jugadores", True, YELLOW)
-        self.screen.blit(title_text, (SCREEN_CENTER[0] - title_text.get_width()//2, 400))
+        self.screen.blit(title_text, (SCREEN_CENTER[0] - title_text.get_width()//2 - 5, 350))
 
         local_team = self.teams[self.selected_team_local]
         visit_team = self.teams[self.selected_team_visit]
@@ -156,6 +152,12 @@ class ConfigScreen:
         instr_text = small_font.render("TAB: Cambiar modo | ESPACIO: Cambiar jugador | ENTER: Continuar", True, WHITE)
         self.screen.blit(instr_text, (SCREEN_CENTER[0] - instr_text.get_width()//2, 680))
 
+    def load_player_photo(self, filename):
+        photo_path = os.path.join(IMAGES_DIR, "players", filename)
+        if os.path.exists(photo_path):
+            return pygame.image.load(photo_path)
+        else:
+            return None
 
     def draw_player_section(self, team_type, shooter, goalie, x ,y):
         #Titulo del equipo
@@ -163,13 +165,23 @@ class ConfigScreen:
         self.screen.blit(team_text, (x, y))
 
         #Artillero
-        shooter_text = text_font.render("Artillero:", True, WHITE)
-        self.screen.blit(shooter_text, (x, y + 50))
+        shooter_photo = self.load_player_photo(shooter["photo"])
+        if shooter_photo:
+            shooter_photo = pygame.transform.scale(shooter_photo, (80, 100))
+            self.screen.blit(shooter_photo, (x, y + 40))
+
+        shooter_text = text_font.render("Artillero: ", True, WHITE)
+        self.screen.blit(shooter_text, (x + 90, y + 50))
 
         shooter_name = text_font.render(shooter["name"], True, YELLOW)
-        self.screen.blit(shooter_name, (x, y + 90))
+        self.screen.blit(shooter_name, (x + 90, y + 70))
 
         #Portero
+        goalie_photo = self.load_player_photo(goalie["photo"])
+        if goalie_photo:
+            goalie_photo = pygame.transform.scale(goalie_photo, (80, 100))
+            self.screen.blit(goalie_photo, (x, y + 140))
+
         goalie_text = text_font.render("Portero:", True, WHITE)
         self.screen.blit(goalie_text, (x, y + 140))
 
