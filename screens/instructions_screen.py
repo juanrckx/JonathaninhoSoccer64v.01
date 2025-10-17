@@ -45,6 +45,7 @@ class InstructionsScreen:
         self.max_scroll = 400
         self.breath_alpha = BREATH_MIN_ALPHA
         self.breath_direction = 1
+        self.background_image = self.load_background_image("background_image.png")
 
     def update_breath_effect(self):
         """Actualiza el efecto de respiración"""
@@ -55,6 +56,13 @@ class InstructionsScreen:
         elif self.breath_alpha <= BREATH_MIN_ALPHA:
             self.breath_alpha = BREATH_MIN_ALPHA
             self.breath_direction = 1
+
+    def load_background_image(self, file_name):
+        image_path = os.path.join(IMAGES_DIR, file_name)
+        if os.path.exists(image_path):
+            background = pygame.image.load(image_path)
+            return pygame.transform.scale(background, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        return None
 
     def draw_help_text_with_breath(self, text, font, color, x, y):
         """Dibuja texto con efecto de respiración"""
@@ -89,7 +97,11 @@ class InstructionsScreen:
         self.update_breath_effect()
 
         # Fondo
-        screen.fill(BACKGROUND_COLOR)
+        screen.blit(self.background_image, (0, 0))
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 128))  # Negro semi-transparente (alpha = 128/255)
+        screen.blit(overlay, (0, 0))
+
 
         # Botón regresar
         back_rect = self.draw_back_button()
