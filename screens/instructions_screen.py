@@ -41,6 +41,7 @@ INSTRUCTIONS = [
 class InstructionsScreen:
     def __init__(self):
         self.running = True
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.scroll_offset = 0
         self.max_scroll = 400
         self.breath_alpha = BREATH_MIN_ALPHA
@@ -97,7 +98,7 @@ class InstructionsScreen:
         self.update_breath_effect()
 
         # Fondo
-        screen.blit(self.background_image, (0, 0))
+        self.screen.blit(self.background_image, (0, 0))
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 128))  # Negro semi-transparente (alpha = 128/255)
         screen.blit(overlay, (0, 0))

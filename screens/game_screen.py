@@ -9,6 +9,7 @@ class GameScreen:
         self.running = True
         pygame.display.set_caption("Jonathaninho Soccer 64 - Partida")
 
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.game_config = game_config
         self.background_image = self.load_image("background_image.png")
 
@@ -23,6 +24,9 @@ class GameScreen:
     def draw(self):
         if self.background_image:
             screen.blit(self.background_image, (0, 0))
+            overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+            overlay.fill((0, 0, 0, 128))  # Negro semi-transparente (alpha = 128/255)
+            screen.blit(overlay, (0, 0))
         else:
             screen.fill(BACKGROUND_COLOR)
 
@@ -31,11 +35,11 @@ class GameScreen:
         screen.blit(score_text, (SCREEN_CENTER[0] - score_text.get_width() // 2, 50))
 
         turn_text = header_font.render(f"Turno: {self.current_turn.upper()}", True, WHITE)
-        screen.blit(turn_text, (SCREEN_CENTER[0] - turn_text.get_width() // 2, 120))
+        self.screen.blit(turn_text, (SCREEN_CENTER[0] - turn_text.get_width() // 2, 120))
 
         #Instrucciones
         help_text = small_font.render("Presione 1-6 para disparar | ESC para volver", True, WHITE)
-        screen.blit(help_text, (SCREEN_CENTER[0] - help_text.get_width() // 2, SCREEN_HEIGHT - 50))
+        self.screen.blit(help_text, (SCREEN_CENTER[0] - help_text.get_width() // 2, SCREEN_HEIGHT - 50))
 
         pygame.display.flip()
 
@@ -63,7 +67,7 @@ class GameScreen:
     def run(self):
         while self.running:
             action = self.handle_events()
-            if action == "game":
+            if action != "game":
                 return action
 
             self.draw()

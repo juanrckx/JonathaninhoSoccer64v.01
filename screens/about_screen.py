@@ -22,6 +22,7 @@ PROJECT_INFO = {"title_image": "title_image.png",
 class AboutScreen:
     def __init__(self):
         self.running = True
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.title_image = self.load_image(PROJECT_INFO["title_image"])
         self.background_image = self.load_image("background_image.png")
 
@@ -102,7 +103,7 @@ class AboutScreen:
         #Actualizar efecto de respiracion
         self.update_breath()
         # Fondo
-        screen.blit(self.background_image, (0, 0))
+        self.screen.blit(self.background_image, (0, 0))
 
         # Capa semi-transparente para mejorar legibilidad del texto
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
@@ -139,7 +140,7 @@ class AboutScreen:
 
             # Información de identificación debajo del nombre
             id_text = small_font.render(f"Carnet: {author['carnet']}", True, TEXT_COLOR)
-            screen.blit(id_text, (x_pos - 10, y_offset + 180))
+            self.screen.blit(id_text, (x_pos - 10, y_offset + 180))
 
         y_offset += 200
 

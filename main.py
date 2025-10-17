@@ -17,7 +17,6 @@ from screens.game_screen import GameScreen
 
 def main():
     # Inicializar la ventana principal
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Jonathaninho Soccer 64")
 
     # Instanciar pantallas

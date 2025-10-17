@@ -13,6 +13,7 @@ class CoinTossScreen:
 
         self.background_image = self.load_background_image("background_image.png")
         self.game_config = game_config
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
         #Estados de la animacion
         self.animation_state = "tossing" # "tossing", "result", "complete"
@@ -46,7 +47,7 @@ class CoinTossScreen:
 
         #Dibujar moneda
         pygame.draw.circle(screen, YELLOW, (coin_x, self.coin_y), coin_radius)
-        pygame.draw.circle(screen, (YELLOW), (coin_x, self.coin_y), coin_radius, 3)
+        pygame.draw.circle(screen, YELLOW, (coin_x, self.coin_y), coin_radius, 3)
 
         #Cara
         if int(self.coin_angle / 100) % 2 == 0:
@@ -68,18 +69,18 @@ class CoinTossScreen:
 
         #Titulo
         title_text = header_font.render("Sorteo de Moneda", True, (100, 100, 0))
-        screen.blit(title_text, (SCREEN_CENTER[0] - title_text.get_width()//2, 30))
+        self.screen.blit(title_text, (SCREEN_CENTER[0] - title_text.get_width()//2, 30))
 
         # Equipos participantes
         teams_text = header_font.render("Equipos Participantes", True, LIGHT_BLUE)
-        screen.blit(teams_text, (SCREEN_CENTER[0] - teams_text.get_width()//2, 100))
+        self.screen.blit(teams_text, (SCREEN_CENTER[0] - teams_text.get_width()//2, 100))
 
         # Nombres de equipos
         local_name = text_font.render(f"{local_team_data['name']}", True, WHITE)
         visit_name = text_font.render(f"{visit_team_data['name']}", True, WHITE)
 
-        screen.blit(local_name, (SCREEN_CENTER[0] - 300, 150))
-        screen.blit(visit_name, (SCREEN_CENTER[0] + 100, 150))
+        self.screen.blit(local_name, (SCREEN_CENTER[0] - 300, 150))
+        self.screen.blit(visit_name, (SCREEN_CENTER[0] + 100, 150))
 
         # Escudos
         try:
@@ -89,8 +90,8 @@ class CoinTossScreen:
             local_shield = pygame.transform.scale(local_shield, (80, 80))
             visit_shield = pygame.transform.scale(visit_shield, (80, 80))
 
-            screen.blit(local_shield, (SCREEN_CENTER[0] - 400, 140))
-            screen.blit(visit_shield, (SCREEN_CENTER[0] + 230, 140))
+            self.screen.blit(local_shield, (SCREEN_CENTER[0] - 400, 140))
+            self.screen.blit(visit_shield, (SCREEN_CENTER[0] + 230, 140))
         except:
             pass
 
@@ -102,25 +103,25 @@ class CoinTossScreen:
 
         # Título del resultado
         result_title = header_font.render("¡Resultado del Sorteo!", True, YELLOW)
-        screen.blit(result_title, (SCREEN_CENTER[0] - result_title.get_width() // 2, result_y))
+        self.screen.blit(result_title, (SCREEN_CENTER[0] - result_title.get_width() // 2, result_y))
 
         # Equipo local
         local_text = text_font.render(f"Equipo Local: {self.local_team['name']}", True, LIGHT_BLUE)
-        screen.blit(local_text, (SCREEN_CENTER[0] - local_text.get_width() // 2, result_y + 50))
+        self.screen.blit(local_text, (SCREEN_CENTER[0] - local_text.get_width() // 2, result_y + 50))
 
         # Equipo visitante
         visit_text = text_font.render(f"Equipo Visitante: {self.visit_team['name']}", True, LIGHT_BLUE)
-        screen.blit(visit_text, (SCREEN_CENTER[0] - visit_text.get_width() // 2, result_y + 90))
+        self.screen.blit(visit_text, (SCREEN_CENTER[0] - visit_text.get_width() // 2, result_y + 90))
 
         # Instrucción para continuar
         continue_text = small_font.render("Presione ESPACIO para continuar al juego", True, (200, 200, 200))
-        screen.blit(continue_text, (SCREEN_CENTER[0] - continue_text.get_width() // 2, SCREEN_HEIGHT - 50))
+        self.screen.blit(continue_text, (SCREEN_CENTER[0] - continue_text.get_width() // 2, SCREEN_HEIGHT - 50))
 
     def draw_instructions(self):
         """Dibuja instrucciones durante la animación"""
         if self.animation_state == "tossing":
             instr_text = small_font.render("Lanzando moneda...", True, (200, 200, 200))
-            screen.blit(instr_text, (SCREEN_CENTER[0] - instr_text.get_width() // 2, SCREEN_HEIGHT - 50))
+            self.screen.blit(instr_text, (SCREEN_CENTER[0] - instr_text.get_width() // 2, SCREEN_HEIGHT - 50))
 
     def update_animation(self):
         """Actualiza la animación de la moneda"""
@@ -174,12 +175,12 @@ class CoinTossScreen:
         """Dibuja toda la pantalla de sorteo"""
         # Fondo
         if self.background_image:
-            screen.blit(self.background_image, (0, 0))
+            self.screen.blit(self.background_image, (0, 0))
             overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
             overlay.fill((0, 0, 0, 180))
-            screen.blit(overlay, (0, 0))
+            self.screen.blit(overlay, (0, 0))
         else:
-            screen.fill(GREEN)
+            self.screen.fill(GREEN)
 
         # Información de equipos
         self.draw_teams_info()
@@ -219,8 +220,6 @@ class CoinTossScreen:
         """Ejecuta la pantalla de sorteo"""
         # Iniciar animación automáticamente después de un breve momento
         pygame.time.delay(500)
-        self.coin_rotation_speed = 25
-        self.coin_velocity = -15
 
         while self.running:
             action = self.handle_events()
