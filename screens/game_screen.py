@@ -38,26 +38,39 @@ class GameScreen:
         return pygame.image.load(image_path)
 
     def generate_goalkeeper_position(self):
+        """Genera la posición del portero según los índices AN del PDF - CORREGIDO"""
         goalkeeper_key = "goalie_local" if self.current_turn == "local" else "goalie_visit"
-
         goalkeeper_index = self.game_config[goalkeeper_key]
 
-        positions = [#AN1: 2 paletas contiguas (3 grupos posibles)
-                    [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]],
-                    #AN2: 3 paletas contiguas (2 grupos posibles)
-                    [[0, 1, 2], [1, 2, 3], [2, 3, 4], [3, 4, 5]],
-                    #AN3: 3 paletas alternas (2 grupos posibles)
-                    [[0, 2, 4], [1, 3, 5]]]
+        # Los 3 índices AN del PDF (página 6) - CORREGIDOS
+        positions = [
+            # AN1: 2 paletas contiguas (5 grupos posibles)
+            [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]],
+            # AN2: 3 paletas contiguas (4 grupos posibles)
+            [[0, 1, 2], [1, 2, 3], [2, 3, 4], [3, 4, 5]],
+            # AN3: 3 paletas alternas (2 grupos posibles)
+            [[0, 2, 4], [1, 3, 5]]
+        ]
 
-
+        # Seleccionar grupo basado en el índice del portero
         position_group = positions[goalkeeper_index % len(positions)]
         return random.choice(position_group)
 
     def check_goal(self, shot_position):
-        for covered_position in self.goalkeeper_position:
-            if shot_position == covered_position:
-                return False
-            return True
+        """Determina si es gol válido según el PDF - CORREGIDO"""
+        # DEBUG: Mostrar información para verificar
+        print(f"Tiro en paleta: {shot_position}")
+        print(f"Portero cubre: {self.goalkeeper_position}")
+
+        # Verificar si el tiro cayó en alguna de las paletas cubiertas por el portero
+        # self.goalkeeper_position es un array de paletas cubiertas (ej: [2, 3, 4])
+        for covered_palette in self.goalkeeper_position:
+            if shot_position == covered_palette:
+                print("❌ PORTERO ATAJÓ - No es gol")
+                return False  # Portero atajó
+
+        print("✅ GOL VÁLIDO")
+        return True  # GOL VÁLIDO
 
     def handle_shot(self, shot_position):
         #Generar portero para el turno
@@ -95,10 +108,10 @@ class GameScreen:
             goalie_y = SCREEN_HEIGHT // 2 + 50
             for i in range(6):
                 color = RED if i in self.goalkeeper_position else GREEN
-                pygame.draw.rect(self.screen, color, (200 + i * 80, goalie_y, 60, 20))
+                pygame.draw.rect(self.screen, color, (300 + i * 80, goalie_y, 70, 20))
 
             goalie_text = small_font.render("Posicion del Portero", True, WHITE)
-            self.screen.blit(goalie_text, (200, goalie_y - 30))
+            self.screen.blit(goalie_text, (460, goalie_y + 30))
 
     def draw_shot_result(self):
         if self.current_phase == "showing_result" and self.last_shot_result is not None:
@@ -115,11 +128,11 @@ class GameScreen:
             self.screen.blit(result_text, (SCREEN_CENTER[0] - result_text.get_width() // 2, result_y))
 
             message_text = header_font.render(message, True, WHITE)
-            self.screen.blit(message_text, (SCREEN_CENTER[0] - message_text.get_width() // 2, result_y + 60))
+            self.screen.blit(message_text, (SCREEN_CENTER[0] - message_text.get_width() // 2, result_y - 30))
 
             # Mostrar posición del tiro
             shot_text = text_font.render(f"Tiro en paleta: {self.last_shot_position + 1}", True, LIGHT_BLUE)
-            self.screen.blit(shot_text, (SCREEN_CENTER[0] - shot_text.get_width() // 2, result_y + 110))
+            self.screen.blit(shot_text, (SCREEN_CENTER[0] - shot_text.get_width() // 2, result_y - 55))
 
     def draw_scoreboard(self):
         score_text = title_font.render(f"{self.score['local']} - {self.score['visit']}", True, YELLOW)
