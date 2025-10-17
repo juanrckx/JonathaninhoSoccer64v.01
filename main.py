@@ -12,6 +12,7 @@ from screens.about_screen import AboutScreen
 from screens.config_screen import ConfigScreen
 from screens.instructions_screen import InstructionsScreen
 from screens.coin_toss_screen import CoinTossScreen
+from screens.game_screen import GameScreen
 
 
 def main():
@@ -65,8 +66,14 @@ def main():
             action, updated_config = coin_toss_screen.run()
             if action == "start_game":
                 game_config = updated_config
+                game_screen = GameScreen(game_config)
                 current_screen = "game"
             elif action == "back" or action == "quit":
+                current_screen = "main_menu"
+
+        elif current_screen == "game":
+            action = game_screen.run()
+            if action == "back" or action == "quit":
                 current_screen = "main_menu"
 
         elif current_screen == "instructions":
