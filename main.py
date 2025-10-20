@@ -95,13 +95,13 @@ def main():
 
         elif current_screen == "coin_toss":
             # Cambiar música para el sorteo
-            audio_manager.play_music(COIN_TOSS_MUSIC)
+            audio_manager.play_music(GAME_MUSIC)
             action, updated_config = coin_toss_screen.run()
             if action == "start_game":
                 game_config = updated_config
                 game_screen = GameScreen(game_config, audio_manager)
                 # Restaurar música principal
-                audio_manager.play_music(COIN_TOSS_MUSIC)
+                audio_manager.play_music(GAME_MUSIC)
                 current_screen = "game"
             elif action == "back" or action == "quit":
                 # Restaurar música principal

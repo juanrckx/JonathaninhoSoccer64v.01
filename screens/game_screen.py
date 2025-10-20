@@ -48,7 +48,7 @@ class GameScreen:
         return pygame.image.load(image_path)
 
     def generate_goalkeeper_position(self):
-        """Genera la posición del portero según los índices AN del PDF - CORREGIDO"""
+        """Genera la posición del portero según los índices AN"""
         goalkeeper_key = "goalie_local" if self.current_turn == "local" else "goalie_visit"
         goalkeeper_index = self.game_config[goalkeeper_key]
 
