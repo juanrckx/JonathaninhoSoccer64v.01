@@ -4,12 +4,13 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import *
 
 class MainMenu:
-    def __init__(self):
+    def __init__(self, audio_manager=None):
         self.running = True
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Jonathaninho Soccer 64 - Pantalla principal")
 
-        self.background_music = self.load_sound("background_music.mp3")
+        self.audio_manager = audio_manager
+
         self.title_image = self.load_image("title_image.png")
         self.background_image = self.load_image("background_image.png")
 
@@ -127,17 +128,11 @@ class MainMenu:
 
     def run(self):
         """Ejecuta el menú principal"""
-        # Reproducir música de fondo
-        if self.background_music:
-            self.background_music.play(-1)  # -1 para loop infinito
 
         while self.running:
             action = self.handle_events()
 
             if action != "main_menu":
-                # Detener música al salir del menú
-                if self.background_music:
-                    self.background_music.stop()
                 return action
 
             self.draw()

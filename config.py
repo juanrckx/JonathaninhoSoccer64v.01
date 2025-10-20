@@ -10,6 +10,13 @@ LIGHT_BLUE = 0, 200, 255
 BLUE = 0, 0, 255
 RED = 255, 0, 0
 
+# Rutas de archivos de audio
+BACKGROUND_MUSIC = "background_music.mp3"
+COIN_TOSS_MUSIC = "coin_toss_music.mp3"
+WHISTLE_SOUND = "whistle.mp3"
+CHEER_SOUND = "cheer.mp3"
+BOO_SOUND = "boo.mp3"
+
 BREATH_MIN_ALPHA = 100
 BREATH_MAX_ALPHA = 255
 BREATH_SPEED = 5.0

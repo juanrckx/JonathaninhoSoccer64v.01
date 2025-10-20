@@ -39,7 +39,7 @@ INSTRUCTIONS = [
 
 
 class InstructionsScreen:
-    def __init__(self):
+    def __init__(self, audio_manager=None):
         self.running = True
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.scroll_offset = 0
@@ -47,6 +47,8 @@ class InstructionsScreen:
         self.breath_alpha = BREATH_MIN_ALPHA
         self.breath_direction = 1
         self.background_image = self.load_background_image("background_image.png")
+
+        self.audio_manager = audio_manager
 
     def update_breath_effect(self):
         """Actualiza el efecto de respiración"""

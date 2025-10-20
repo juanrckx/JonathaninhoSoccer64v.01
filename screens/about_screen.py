@@ -20,11 +20,13 @@ PROJECT_INFO = {"title_image": "title_image.png",
                 "version": "v1.0",}
 
 class AboutScreen:
-    def __init__(self):
+    def __init__(self, audio_manager=None):
         self.running = True
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.title_image = self.load_image(PROJECT_INFO["title_image"])
         self.background_image = self.load_image("background_image.png")
+
+        self.audio_manager = audio_manager
 
 
         # Escalar la imagen del título si es necesario

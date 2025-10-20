@@ -7,17 +7,20 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import *
 
 class GameScreen:
-    def __init__(self, game_config):
+    def __init__(self, game_config, audio_manager=None):
         self.running = True
         pygame.display.set_caption("Jonathaninho Soccer 64 - Partida")
-
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.game_config = game_config
         self.background_image = self.load_image("background_image.png")
+        self.audio_manager = audio_manager
 
         self.score = {"local": 0, "visit": 0}
         self.current_turn = "local"
-        self.game_state = "playing" #playing, goal, finished
+        self.game_state = "cooldown" #playing, goal, finished
+
+        self.cooldown_timer = 0
+        self.cooldown_duration = 3000
 
         self.shots_taken = {"local": 0, "visit": 0}
         self.max_shots = 5
@@ -32,6 +35,13 @@ class GameScreen:
 
         self.player_stats = {"local": {"goals": 0, "shots": 0},
                              "visit": {"goals": 0, "shots": 0}}
+
+    def start_cooldown(self):
+        self.game_state = "cooldown"
+        self.cooldown_timer = pygame.time.get_ticks()
+        if self.audio_manager:
+            self.audio_manager.play_sound("whistle")
+
 
     def load_image(self, file_path):
         image_path = os.path.join(IMAGES_DIR, file_path)
@@ -82,9 +92,14 @@ class GameScreen:
         self.last_shot_result = is_goal
 
         #Actualizar marcador
-        if is_goal:
-            self.score[self.current_turn] += 1
-            self.player_stats[self.current_turn]["goals"] += 1
+        if self.audio_manager:
+            if is_goal:
+                self.score[self.current_turn] += 1
+                self.player_stats[self.current_turn]["goals"] += 1
+                self.audio_manager.play_sound("cheer")
+            else:
+                self.audio_manager.play_sound("boo")
+
 
         self.player_stats[self.current_turn]["shots"] += 1
         self.shots_taken[self.current_turn] += 1
@@ -102,6 +117,24 @@ class GameScreen:
                 self.current_turn = "visit" if self.current_turn == "local" else "local"
 
         return is_goal
+
+    def draw_cooldown_message(self):
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+        overlay.fill(RED)
+        self.screen.blit(overlay, (0, 0))
+
+        cooldown_text = title_font.render("PREPÁRENSE!", True, YELLOW)
+        self.screen.blit(cooldown_text, (SCREEN_CENTER[0] - cooldown_text.get_width() // 2, SCREEN_CENTER[1] - 50))
+
+        time_left = max(0, self.cooldown_duration - (pygame.time.get_ticks() - self.cooldown_timer))
+        seconds_left = (time_left // 1000) + 1
+
+        countdown_text = header_font.render(str(seconds_left), True, LIGHT_BLUE)
+        self.screen.blit(countdown_text, (SCREEN_CENTER[0] - countdown_text.get_width() // 2, SCREEN_CENTER[1] + 20))
+
+        info_text = text_font.render("El juego comenzará en...", True, WHITE)
+        self.screen.blit(info_text, (SCREEN_CENTER[0] - info_text.get_width() // 2, SCREEN_CENTER[1] - 100))
+
 
     def draw_goalkeeper_indicator(self):
         if self.goalkeeper_position and self.current_phase == "showing_result":
@@ -212,6 +245,10 @@ class GameScreen:
 
         if self.game_state == "finished":
             self.draw_game_finished()
+        elif self.game_state == "cooldown":
+            self.draw_scoreboard()
+            self.draw_goal_display()
+            self.draw_cooldown_message()
         else:
             self.draw_scoreboard()
             self.draw_goal_display()
@@ -227,10 +264,15 @@ class GameScreen:
         pygame.display.flip()
 
     def update(self):
-      if self.current_phase == "showing_result":
-          if pygame.time.get_ticks() - self.result_timer > self.result_duration:
-              self.current_phase = "waiting_shot"
-              self.last_shot_result = None
+        if self.game_state == "cooldown":
+            if pygame.time.get_ticks() - self.cooldown_timer > self.cooldown_duration:
+                self.game_state = "playing"
+                self.current_phase = "waiting_shot"
+
+        if self.current_phase == "showing_result":
+            if pygame.time.get_ticks() - self.result_timer > self.result_duration:
+                self.current_phase = "waiting_shot"
+                self.last_shot_result = None
 
 
     def handle_events(self):

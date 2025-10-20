@@ -6,10 +6,11 @@ from config import *
 
 
 class ConfigScreen:
-    def __init__(self):
+    def __init__(self, audio_manager=None):
         self.running = True
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption('Jonathaninho Soccer 64 - Configuracion')
+        self.audio_manager = audio_manager
 
         self.background_image = self.load_background_image("background_image.png")
 
