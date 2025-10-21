@@ -58,7 +58,7 @@ class ConfigScreen:
                 ],
                 "goalies": [
                     {"name": "Marc-André ter Stegen", "photo": "goalie1b.jpg"},
-                    {"name": "Tomasz Szczęsny", "photo": "goalie2b.jpg"},
+                    {"name": "Tomasz Szczęsny", "photo": "goalie2b.png"},
                     {"name": "Claudio Bravo", "photo": "goalie3b.jpg"}
                 ]
             },
