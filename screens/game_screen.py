@@ -1,6 +1,9 @@
 import random
 import sys
 import os
+
+import pygame.time
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import *
 
@@ -13,16 +16,25 @@ class GameScreen:
         self.background_image = self.load_image("background_image.png")
         self.audio_manager = audio_manager
 
+        #Estados del juego
         self.score = {"local": 0, "visit": 0}
         self.current_turn = "local"
-        self.game_state = "waiting_start" #playing, waiting_start, cooldown, finished, waiting_shot
+        self.game_state = "cooldown" #playing, cooldown, finished, waiting_shot
 
-        self.cooldown_timer = 0
-        self.cooldown_duration = 3000
+        #Temporizadores
+        self.cooldown_timer = pygame.time.get_ticks()
+        self.cooldown_duration = 3000 # 3 segundos de preparacion
+
+        self.shot_timer = 0
+        self.shot_timeout = 3000 # 3 segundos para cobrar despues del pito
+        self.shot_timer_active = False
+
+        self.player_change_timer = 0
+        self.auto_change_duration = 5000  # 5 segundos para cambio automatico
 
         self.shots_taken = {"local": 0, "visit": 0}
         self.max_shots = 5
-        self.current_phase = "waiting_shot"
+        self.current_phase = "waiting_whistle"
 
         self.goalkeeper_position = None
         self.last_shot_position = None
@@ -34,6 +46,15 @@ class GameScreen:
         self.player_stats = {"local": {"goals": 0, "shots": 0},
                              "visit": {"goals": 0, "shots": 0}}
 
+
+
+        self.current_shooter_local = game_config.get("shooter_local", 0)
+        self.current_shooter_visit = game_config.get("shooter_visit", 0)
+        self.current_goalie_local = game_config.get("goalie_local", 0)
+        self.current_goalie_visit = game_config.get("goalie_visit", 0)
+
+        self.start_cooldown()
+
     def start_cooldown(self):
         self.game_state = "cooldown"
         self.cooldown_timer = pygame.time.get_ticks()
@@ -41,6 +62,259 @@ class GameScreen:
             self.audio_manager.play_sound("whistle")
         else:
             print("No se ha cargado el audio manager, no se ha ejecutado el sonido.")
+
+    def start_shot_period(self):
+        self.game_state = "playing"
+        self.current_phase = "waiting_shot"
+        self.shot_timer = pygame.time.get_ticks()
+        self.shot_timer_active = True
+
+        if self.audio_manager:
+            self.audio_manager.play_sound("whistle")
+
+    def check_shot_timeout(self):
+        if (self.shot_timer_active and
+                self.current_phase == "waiting_shot" and
+            pygame.time.get_ticks() - self.shot_timer > self.shot_timeout):
+
+            self.handle_timeout_shot()
+            return True
+        return False
+
+    def handle_timeout_shot(self):
+        self.shot_timer_active = False
+        self.last_shot_position = None
+        self.last_shot_result = False
+
+        self.player_stats[self.current_turn]["shots"] += 1
+        self.player_stats[self.current_turn]["timeouts"] += 1
+        self.shots_taken[self.current_turn] += 1
+
+        #Mostrar resultado
+        self.current_phase = "showing_result"
+        self.result_timer = pygame.time.get_ticks()
+
+        if self.audio_manager:
+            self.audio_manager.play_sound("boo")
+
+        self.handle_after_shot()
+
+    def handle_shot(self, shot_position):
+        # Generar portero para el turno
+        self.goalkeeper_position = self.generate_goalkeeper_position()
+
+        self.shot_timer_active = False
+
+        # Verificar si es gol
+        is_goal = self.check_goal(shot_position)
+        self.last_shot_position = shot_position
+        self.last_shot_result = is_goal
+
+        # Actualizar marcador
+        if self.audio_manager:
+            if is_goal:
+                self.score[self.current_turn] += 1
+                self.player_stats[self.current_turn]["goals"] += 1
+                self.audio_manager.play_sound("cheer")
+            else:
+                self.audio_manager.play_sound("boo")
+
+        self.player_stats[self.current_turn]["shots"] += 1
+        self.shots_taken[self.current_turn] += 1
+
+        # Cambiar a fase de mostrar resultado
+        self.current_phase = "showing_result"
+        self.result_timer = pygame.time.get_ticks()
+
+    def handle_after_shot(self):
+        # Determinar siguiente estado
+        if self.shots_taken[self.current_turn] >= self.max_shots:
+            self.current_turn = "visit" if self.current_turn == "local" else "local"
+            if all(shots >= self.max_shots for shots in self.shots_taken.values()):
+                self.game_state = "finished"
+                return
+
+            if self.game_config.get("change_mode") == "auto":
+                self.start_auto_change()
+            else:
+                self.current_phase = "changing_players_manual"
+
+    def start_auto_change(self):
+        self.current_phase = "changing_players_auto"
+        self.auto_change_timer = pygame.time.get_ticks()
+
+    def perform_player_change(self):
+        if self.current_turn == "local":
+            self.current_shooter_local = (self.current_shooter_local + 1) % 3
+            self.current_goalie_local = (self.current_goalie_local + 1) % 3
+        else:
+            self.current_shooter_visit = (self.current_shooter_visit + 1) % 3
+            self.current_goalie_visit = (self.current_goalie_visit + 1) % 3
+
+        #Actualizar configuracion
+        self.game_config["shooter_local"] = self.current_shooter_local
+        self.game_config["goalie_local"] = self.current_goalie_local
+        self.game_config["shooter_visit"] = self.current_shooter_visit
+        self.game_config["goalie_visit"] = self.current_goalie_visit
+
+        self.start_cooldown()
+
+    def update(self):
+        current_time = pygame.time.get_ticks()
+        if self.game_state == "cooldown":
+            if current_time - self.cooldown_timer > self.cooldown_duration:
+                self.start_shot_period()
+
+        elif self.current_phase == "waiting_shot":
+            self.check_shot_timeout()
+
+        elif self.current_phase == "showing_result":
+            if current_time - self.result_timer > self.result_duration:
+                if self.game_config.get("change_mode") == "auto":
+                    self.start_auto_change()
+                else:
+                    self.current_phase = "changing_players_manual"
+
+        elif self.current_phase == "changing_players_auto":
+            if current_time - self.auto_change_timer > self.auto_change_duration:
+                self.perform_player_change()
+
+    def draw_cooldown_message(self):
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 180))
+        self.screen.blit(overlay, (0, 0))
+
+        cooldown_text = title_font.render("PREPÁRENSE!", True, YELLOW)
+        self.screen.blit(cooldown_text, (SCREEN_CENTER[0] - cooldown_text.get_width() // 2, SCREEN_CENTER[1] - 140))
+
+        time_left = max(0, self.cooldown_duration - (pygame.time.get_ticks() - self.cooldown_timer))
+        seconds_left = (time_left // 1000) + 1
+
+        countdown_text = header_font.render(str(seconds_left), True, WHITE)
+        self.screen.blit(countdown_text, (SCREEN_CENTER[0] - countdown_text.get_width() // 2, SCREEN_CENTER[1] - 70))
+
+        info_text = text_font.render("El juego comenzará en...", True, WHITE)
+        self.screen.blit(info_text, (SCREEN_CENTER[0] - info_text.get_width() // 2, SCREEN_CENTER[1] - 100))
+
+        # Mostrar equipo actual
+        team_text = header_font.render(f"Turno: {self.current_turn.upper()}", True, WHITE)
+        self.screen.blit(team_text, (SCREEN_CENTER[0] - team_text.get_width() // 2, SCREEN_CENTER[1] + 10))
+
+    def draw_shot_timer(self):
+        if self.shot_timer_active and self.current_phase == "waiting_shot":
+            time_left = max(0, self.shot_timeout - (pygame.time.get_ticks() - self.shot_timer))
+            seconds_left = (time_left // 1000) + 1
+
+            timer_y = SCREEN_CENTER - 100
+            timer_text = header_font.render(f"TIEMPO: {seconds_left}", True, RED if seconds_left < 1 else YELLOW)
+
+            self.screen.blit(timer_text, (SCREEN_CENTER[0] - timer_text.get_width() // 2, timer_y))
+
+    def draw_player_change_indicator(self):
+        if self.current_phase == "changing_players_auto":
+            time_left = max(0, self.auto_change_duration - (pygame.time.get_ticks() - self.auto_change_timer))
+            seconds_left = (time_left // 1000) + 1
+
+            change_y = SCREEN_HEIGHT // 2 + 150
+            change_text = header_font.render(f"CAMBIO AUTOMATICO EN: {seconds_left}", True, YELLOW)
+            self.screen.blit(change_text, (SCREEN_CENTER[0] - change_text.get_width() // 2, change_y))
+
+        elif self.current_phase == "changing_players_manual":
+            change_y = SCREEN_HEIGHT // 2 + 150
+            change_text = header_font.render(f"PRESIONE EL BOTON PARA CAMBIAR DE JUGADOR", True, YELLOW)
+
+            self.screen.blit(change_text, (SCREEN_CENTER[0] - change_text.get_width() // 2, change_y))
+
+            # Mostrar información del próximo jugador
+            team_data = self.game_config["team_local"] if self.current_turn == "local" else self.game_config[
+                "team_visit"]
+            next_shooter_idx = (self.game_config[f"shooter_{self.current_turn}"] + 1) % 3
+            next_goalie_idx = (self.game_config[f"goalie_{self.current_turn}"] + 1) % 3
+
+            next_shooter = team_data["shooters"][next_shooter_idx]
+            next_goalie = team_data["goalies"][next_goalie_idx]
+
+            shooter_text = text_font.render(f"Próximo Artillero: {next_shooter['name']}", True, LIGHT_BLUE)
+            goalie_text = text_font.render(f"Próximo Portero: {next_goalie['name']}", True, LIGHT_BLUE)
+
+            self.screen.blit(shooter_text, (SCREEN_CENTER[0] - shooter_text.get_width() // 2, change_y + 40))
+            self.screen.blit(goalie_text, (SCREEN_CENTER[0] - goalie_text.get_width() // 2, change_y + 70))
+
+    def draw_current_players(self):
+        #Local
+        local_team = self.game_config["team_local"]
+        local_shooter = self.game_config["shooters"][self.current_shooter_local]
+        local_goalie = local_team["goalies"][self.current_goalie_local]
+
+        #Visitante
+        visit_team = self.game_config["team_visit"]
+        visit_shooter = self.game_config["shooters"][self.current_shooter_visit]
+        visit_goalie = visit_team["goalies"][self.current_goalie_visit]
+
+        y_pos = 200
+        local_text = text_font.render(f"Local: {local_shooter['name']} Artillero / {local_goalie['name']} Portero", True, YELLOW)
+        visit_text = text_font.render(f"Visitante: {visit_shooter['name']} Artillero / {visit_goalie['name']} Portero", True, YELLOW)
+
+        self.screen.blit(local_text, (50, y_pos))
+        self.screen.blit(visit_text, (50, y_pos + 10))
+
+    def draw(self):
+        if self.background_image:
+            screen.blit(self.background_image, (0, 0))
+            overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+            overlay.fill((0, 0, 0, 128))  # Negro semi-transparente (alpha = 128/255)
+            screen.blit(overlay, (0, 0))
+        else:
+            screen.fill(BACKGROUND_COLOR)
+
+        if self.game_state == "finished":
+            self.draw_game_finished()
+        elif self.game_state == "cooldown":
+            self.draw_cooldown_message()
+            self.draw_scoreboard()
+        else:
+            self.draw_scoreboard()
+            self.draw_current_players()
+            self.draw_goal_display()
+
+            if self.current_phase == "showing_result":
+                self.draw_shot_result()
+                self.draw_goalkeeper_indicator()
+
+            self.draw_shot_timer()
+            self.draw_player_change_indicator()
+
+            if self.current_phase == "waiting_shot":
+                help_text = small_font.render("Presione 1-6 para disparar | ESC para volver", True, WHITE)
+                self.screen.blit(help_text, (SCREEN_CENTER[0] - help_text.get_width() // 2, SCREEN_HEIGHT - 50))
+
+        pygame.display.flip()
+
+
+    def handle_events(self):
+        """Maneja eventos de la pantalla de juego"""
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return 'quit'
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return 'back'
+
+                elif event.key == pygame.K_SPACE and self.game_state == "finished":
+                    return 'back'
+
+                elif self.current_phase == "waiting_shot" and self.game_state == "playing":
+                    # Detectar tiros con teclas 1-6
+                    if event.key in [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6]:
+                        shot_position = event.key - pygame.K_1  # Convertir a 0-5
+                        self.handle_shot(shot_position)
+
+                elif self.current_phase == "changing_players_manual" and event.key == pygame.K_c:
+                    self.perform_player_change()
+
+        return "game"
+
 
 
     def load_image(self, file_path):
@@ -80,95 +354,6 @@ class GameScreen:
 
         return True  # GOL VÁLIDO
 
-    def handle_shot(self, shot_position):
-        #Generar portero para el turno
-        self.goalkeeper_position = self.generate_goalkeeper_position()
-
-        #Verificar si es gol
-        is_goal = self.check_goal(shot_position)
-        self.last_shot_position = shot_position
-        self.last_shot_result = is_goal
-
-        #Actualizar marcador
-        if self.audio_manager:
-            if is_goal:
-                self.score[self.current_turn] += 1
-                self.player_stats[self.current_turn]["goals"] += 1
-                self.audio_manager.play_sound("cheer")
-            else:
-                self.audio_manager.play_sound("boo")
-
-
-        self.player_stats[self.current_turn]["shots"] += 1
-        self.shots_taken[self.current_turn] += 1
-
-        #Cambiar a fase de mostrar resultado
-        self.current_phase = "showing_result"
-        self.result_timer = pygame.time.get_ticks()
-
-        #Determinar siguiente estado
-        if self.shots_taken[self.current_turn] >= self.max_shots:
-            if all(shots >= self.max_shots for shots in self.shots_taken.values()):
-                self.game_state = "finished"
-
-            else:
-                self.current_turn = "visit" if self.current_turn == "local" else "local"
-                self.start_cooldown()
-
-        return is_goal
-
-    def draw_cooldown_message(self):
-        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 180))
-        self.screen.blit(overlay, (0, 0))
-
-        cooldown_text = title_font.render("PREPÁRENSE!", True, YELLOW)
-        self.screen.blit(cooldown_text, (SCREEN_CENTER[0] - cooldown_text.get_width() // 2, SCREEN_CENTER[1] - 140))
-
-        time_left = max(0, self.cooldown_duration - (pygame.time.get_ticks() - self.cooldown_timer))
-        seconds_left = (time_left // 1000) + 1
-
-        countdown_text = header_font.render(str(seconds_left), True, WHITE)
-        self.screen.blit(countdown_text, (SCREEN_CENTER[0] - countdown_text.get_width() // 2, SCREEN_CENTER[1] - 70))
-
-        info_text = text_font.render("El juego comenzará en...", True, WHITE)
-        self.screen.blit(info_text, (SCREEN_CENTER[0] - info_text.get_width() // 2, SCREEN_CENTER[1] - 100))
-
-        # Mostrar equipo actual
-        team_text = header_font.render(f"Turno: {self.current_turn.upper()}", True, WHITE)
-        self.screen.blit(team_text, (SCREEN_CENTER[0] - team_text.get_width() // 2, SCREEN_CENTER[1] + 10))
-
-    def draw_goalkeeper_indicator(self):
-        if self.goalkeeper_position and self.current_phase == "showing_result":
-            goalie_y = SCREEN_HEIGHT // 2 + 50
-            for i in range(6):
-                color = RED if i in self.goalkeeper_position else GREEN
-                pygame.draw.rect(self.screen, color, (300 + i * 80, goalie_y, 70, 20))
-
-            goalie_text = small_font.render("Posicion del Portero", True, WHITE)
-            self.screen.blit(goalie_text, (460, goalie_y + 30))
-
-    def draw_shot_result(self):
-        if self.current_phase == "showing_result" and self.last_shot_result is not None:
-            result_y = SCREEN_HEIGHT // 2 - 100
-
-            if self.last_shot_result:
-                result_text = title_font.render("GOL!", True, YELLOW)
-                message = "Anotacion valida!"
-
-            else:
-                result_text = title_font.render("ATAJADO!", True, RED)
-                message = "Portero cubrio la posicion"
-
-            self.screen.blit(result_text, (SCREEN_CENTER[0] - result_text.get_width() // 2, result_y))
-
-            message_text = header_font.render(message, True, WHITE)
-            self.screen.blit(message_text, (SCREEN_CENTER[0] - message_text.get_width() // 2, result_y - 30))
-
-            # Mostrar posición del tiro
-            shot_text = text_font.render(f"Tiro en paleta: {self.last_shot_position + 1}", True, LIGHT_BLUE)
-            self.screen.blit(shot_text, (SCREEN_CENTER[0] - shot_text.get_width() // 2, result_y - 55))
-
     def draw_scoreboard(self):
         score_text = title_font.render(f"{self.score['local']} - {self.score['visit']}", True, YELLOW)
         self.screen.blit(score_text, (SCREEN_CENTER[0] - score_text.get_width() // 2, 50))
@@ -203,6 +388,38 @@ class GameScreen:
             num_text = text_font.render(str(i + 1), True, WHITE)
             self.screen.blit(num_text, (palette_x + (goal_width // 12) - num_text.get_width() // 2, goal_y + 40))
 
+
+    def draw_goalkeeper_indicator(self):
+        if self.goalkeeper_position and self.current_phase == "showing_result":
+            goalie_y = SCREEN_HEIGHT // 2 + 50
+            for i in range(6):
+                color = RED if i in self.goalkeeper_position else GREEN
+                pygame.draw.rect(self.screen, color, (300 + i * 80, goalie_y, 70, 20))
+
+            goalie_text = small_font.render("Posicion del Portero", True, WHITE)
+            self.screen.blit(goalie_text, (460, goalie_y + 30))
+
+    def draw_shot_result(self):
+        if self.current_phase == "showing_result" and self.last_shot_result is not None:
+            result_y = SCREEN_HEIGHT // 2 - 100
+
+            if self.last_shot_result:
+                result_text = title_font.render("GOL!", True, YELLOW)
+                message = "Anotacion valida!"
+
+            else:
+                result_text = title_font.render("ATAJADO!", True, RED)
+                message = "Portero cubrio la posicion"
+
+            self.screen.blit(result_text, (SCREEN_CENTER[0] - result_text.get_width() // 2, result_y))
+
+            message_text = header_font.render(message, True, WHITE)
+            self.screen.blit(message_text, (SCREEN_CENTER[0] - message_text.get_width() // 2, result_y - 30))
+
+            # Mostrar posición del tiro
+            shot_text = text_font.render(f"Tiro en paleta: {self.last_shot_position + 1}", True, LIGHT_BLUE)
+            self.screen.blit(shot_text, (SCREEN_CENTER[0] - shot_text.get_width() // 2, result_y - 55))
+
     def draw_game_finished(self):
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 200))
@@ -235,67 +452,6 @@ class GameScreen:
         # Instrucciones para continuar
         continue_text = small_font.render("Presione ESPACIO para volver al menú principal", True, WHITE)
         self.screen.blit(continue_text, (SCREEN_CENTER[0] - continue_text.get_width() // 2, SCREEN_HEIGHT - 100))
-
-    def draw(self):
-        if self.background_image:
-            screen.blit(self.background_image, (0, 0))
-            overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-            overlay.fill((0, 0, 0, 128))  # Negro semi-transparente (alpha = 128/255)
-            screen.blit(overlay, (0, 0))
-        else:
-            screen.fill(BACKGROUND_COLOR)
-
-        if self.game_state == "finished":
-            self.draw_game_finished()
-        elif self.game_state == "cooldown":
-            self.draw_cooldown_message()
-            self.draw_scoreboard()
-        else:
-            self.draw_scoreboard()
-            self.draw_goal_display()
-
-            if self.current_phase == "showing_result":
-                self.draw_shot_result()
-                self.draw_goalkeeper_indicator()
-
-            if self.current_phase == "waiting_shot":
-                help_text = small_font.render("Presione 1-6 para disparar | ESC para volver", True, WHITE)
-                self.screen.blit(help_text, (SCREEN_CENTER[0] - help_text.get_width() // 2, SCREEN_HEIGHT - 50))
-
-        pygame.display.flip()
-
-    def update(self):
-        if self.game_state == "cooldown":
-            if pygame.time.get_ticks() - self.cooldown_timer > self.cooldown_duration:
-                self.game_state = "playing"
-                self.current_phase = "waiting_shot"
-
-        if self.current_phase == "showing_result":
-            if pygame.time.get_ticks() - self.result_timer > self.result_duration:
-                self.current_phase = "waiting_shot"
-                self.last_shot_result = None
-
-
-    def handle_events(self):
-        """Maneja eventos de la pantalla de juego"""
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return 'quit'
-
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    return 'back'
-
-                elif event.key == pygame.K_SPACE and self.game_state == "finished":
-                    return 'back'
-
-                elif self.current_phase == "waiting_shot" and self.game_state == "playing":
-                    # Detectar tiros con teclas 1-6
-                    if event.key in [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6]:
-                        shot_position = event.key - pygame.K_1  # Convertir a 0-5
-                        self.handle_shot(shot_position)
-
-        return "game"
 
 
     def run(self):
