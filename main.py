@@ -66,6 +66,7 @@ def main():
     running = True
     while running:
         if current_screen == "main_menu":
+            audio_manager.play_music(BACKGROUND_MUSIC)
             action = main_menu.run()
             if action == "about":
                 current_screen = "about"
@@ -102,6 +103,7 @@ def main():
                 game_screen = GameScreen(game_config, audio_manager)
                 # Restaurar música principal
                 audio_manager.play_music(GAME_MUSIC)
+                game_screen.start_cooldown()
                 current_screen = "game"
             elif action == "back" or action == "quit":
                 # Restaurar música principal

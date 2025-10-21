@@ -17,7 +17,7 @@ class GameScreen:
 
         self.score = {"local": 0, "visit": 0}
         self.current_turn = "local"
-        self.game_state = "cooldown" #playing, goal, finished
+        self.game_state = "waiting_start" #playing, waiting_start, cooldown, finished, waiting_shot
 
         self.cooldown_timer = 0
         self.cooldown_duration = 3000
@@ -41,6 +41,8 @@ class GameScreen:
         self.cooldown_timer = pygame.time.get_ticks()
         if self.audio_manager:
             self.audio_manager.play_sound("whistle")
+        else:
+            print("No se ha cargado el audio manager, no se ha ejecutado el sonido.")
 
 
     def load_image(self, file_path):
@@ -76,10 +78,8 @@ class GameScreen:
         # self.goalkeeper_position es un array de paletas cubiertas (ej: [2, 3, 4])
         for covered_palette in self.goalkeeper_position:
             if shot_position == covered_palette:
-                print("❌ PORTERO ATAJÓ - No es gol")
                 return False  # Portero atajó
 
-        print("✅ GOL VÁLIDO")
         return True  # GOL VÁLIDO
 
     def handle_shot(self, shot_position):
@@ -115,26 +115,30 @@ class GameScreen:
 
             else:
                 self.current_turn = "visit" if self.current_turn == "local" else "local"
+                self.start_cooldown()
 
         return is_goal
 
     def draw_cooldown_message(self):
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-        overlay.fill(RED)
+        overlay.fill((0, 0, 0, 180))
         self.screen.blit(overlay, (0, 0))
 
         cooldown_text = title_font.render("PREPÁRENSE!", True, YELLOW)
-        self.screen.blit(cooldown_text, (SCREEN_CENTER[0] - cooldown_text.get_width() // 2, SCREEN_CENTER[1] - 50))
+        self.screen.blit(cooldown_text, (SCREEN_CENTER[0] - cooldown_text.get_width() // 2, SCREEN_CENTER[1] - 140))
 
         time_left = max(0, self.cooldown_duration - (pygame.time.get_ticks() - self.cooldown_timer))
         seconds_left = (time_left // 1000) + 1
 
-        countdown_text = header_font.render(str(seconds_left), True, LIGHT_BLUE)
-        self.screen.blit(countdown_text, (SCREEN_CENTER[0] - countdown_text.get_width() // 2, SCREEN_CENTER[1] + 20))
+        countdown_text = header_font.render(str(seconds_left), True, WHITE)
+        self.screen.blit(countdown_text, (SCREEN_CENTER[0] - countdown_text.get_width() // 2, SCREEN_CENTER[1] - 70))
 
         info_text = text_font.render("El juego comenzará en...", True, WHITE)
         self.screen.blit(info_text, (SCREEN_CENTER[0] - info_text.get_width() // 2, SCREEN_CENTER[1] - 100))
 
+        # Mostrar equipo actual
+        team_text = header_font.render(f"Turno: {self.current_turn.upper()}", True, WHITE)
+        self.screen.blit(team_text, (SCREEN_CENTER[0] - team_text.get_width() // 2, SCREEN_CENTER[1] + 10))
 
     def draw_goalkeeper_indicator(self):
         if self.goalkeeper_position and self.current_phase == "showing_result":
@@ -246,9 +250,8 @@ class GameScreen:
         if self.game_state == "finished":
             self.draw_game_finished()
         elif self.game_state == "cooldown":
-            self.draw_scoreboard()
-            self.draw_goal_display()
             self.draw_cooldown_message()
+            self.draw_scoreboard()
         else:
             self.draw_scoreboard()
             self.draw_goal_display()
