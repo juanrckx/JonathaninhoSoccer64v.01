@@ -26,7 +26,7 @@ class ConfigScreen:
         self.change_mode = "auto"
 
         self.potentiometer_value = 0
-        self.selection_mode = "team_local"
+        self.selection_mode = "Equipo local"
 
         self.config_complete = False
 
@@ -48,9 +48,9 @@ class ConfigScreen:
                     {"name": "Marcelo Vieira", "photo": "shooter3a.jpg"}
                 ],
                 "goalies": [
-                    {"name": "Portero 1A", "photo": "goalie1a.jpg"},
-                    {"name": "Portero 2A", "photo": "goalie2a.jpg"},
-                    {"name": "Portero 3A", "photo": "goalie3a.jpg"}
+                    {"name": "Iker Casillas", "photo": "goalie1a.jpg"},
+                    {"name": "Keylor Navas", "photo": "goalie2a.jpg"},
+                    {"name": "Thibaut Courtois", "photo": "goalie3a.jpg"}
                 ]
             },
             {
@@ -62,9 +62,9 @@ class ConfigScreen:
                     {"name": "Lionel Messi", "photo": "shooter3b.jpg"}
                 ],
                 "goalies": [
-                    {"name": "Portero 1B", "photo": "goalie1b.jpg"},
-                    {"name": "Portero 2B", "photo": "goalie2b.jpg"},
-                    {"name": "Portero 3B", "photo": "goalie3b.jpg"}
+                    {"name": "Marc-André ter Stegen", "photo": "goalie1b.jpg"},
+                    {"name": "Tomasz Szczęsny", "photo": "goalie2b.jpg"},
+                    {"name": "Claudio Bravo", "photo": "goalie3b.jpg"}
                 ]
             },
             {
@@ -76,9 +76,9 @@ class ConfigScreen:
                     {"name": "Eden Hazard", "photo": "shooter3c.jpg"}
                 ],
                 "goalies": [
-                    {"name": "Portero 1C", "photo": "goalie1c.jpg"},
-                    {"name": "Portero 2C", "photo": "goalie2c.jpg"},
-                    {"name": "Portero 3C", "photo": "goalie3c.jpg"}
+                    {"name": "Petr Čech", "photo": "goalie1c.jpg"},
+                    {"name": "Kepa Arrizabalaga", "photo": "goalie2c.jpg"},
+                    {"name": "Édouard Mendy", "photo": "goalie3c.jpg"}
                 ]
             }
         ]
@@ -180,21 +180,20 @@ class ConfigScreen:
             self.screen.blit(goalie_photo, (x, y + 80))
 
         goalie_text = text_font.render("Portero:", True, WHITE)
-        self.screen.blit(goalie_text, (x, y + 140))
+        self.screen.blit(goalie_text, (x + 95, y + 80))
 
         goalie_name = text_font.render(goalie["name"], True, YELLOW)
-        self.screen.blit(goalie_name, (x, y + 180))
+        self.screen.blit(goalie_name, (x + 95, y + 100))
 
 
 
     def draw_mode_selection(self):
         mode_text = header_font.render("Modo de cambio:", True, LIGHT_BLUE)
-        self.screen.blit(mode_text, (SCREEN_CENTER[0] - 150, 550))
+        self.screen.blit(mode_text, (SCREEN_CENTER[0] - 115, 150))
 
         #Boton Auto
         auto_color = GREEN if self.change_mode == "auto" else BLUE
-        auto_rect = pygame.Rect(SCREEN_CENTER[0] + 320, 550, 100, 40)
-        auto_rect = pygame.Rect(SCREEN_CENTER[0] + 320, 550, 100, 40)
+        auto_rect = pygame.Rect(SCREEN_CENTER[0] - 120, 210, 100, 40)
         pygame.draw.rect(screen, auto_color, auto_rect, border_radius=10)
         pygame.draw.rect(screen, WHITE, auto_rect, 2, border_radius=10)
 
@@ -203,7 +202,7 @@ class ConfigScreen:
 
         #Boton Manual
         manual_color = GREEN if self.change_mode == "manual" else BLUE
-        manual_rect = pygame.Rect(SCREEN_CENTER[0] + 210, 550, 100, 40)
+        manual_rect = pygame.Rect(SCREEN_CENTER[0] - 10, 210, 100, 40)
         pygame.draw.rect(self.screen, manual_color, manual_rect, border_radius=10)
         pygame.draw.rect(self.screen, WHITE, manual_rect, 2, border_radius=10)
 
@@ -214,7 +213,7 @@ class ConfigScreen:
         return auto_rect, manual_rect
 
     def draw_complete_button(self):
-        complete_rect = pygame.Rect(SCREEN_CENTER[0] + 290, SCREEN_HEIGHT - 80, 200, 50)
+        complete_rect = pygame.Rect(SCREEN_CENTER[0] + 330, SCREEN_HEIGHT - 80, 200, 50)
         pygame.draw.rect(self.screen, GREEN, complete_rect, border_radius=15)
         pygame.draw.rect(self.screen, WHITE, complete_rect, 3, border_radius=15)
 
@@ -262,8 +261,8 @@ class ConfigScreen:
                 elif event.key == pygame.K_TAB:
 
                     # Cambiar modo de selección
-                    modes = ["team_local", "team_visit", "shooter_local", "goalie_local", "shooter_visit",
-                             "goalie_visit"]
+                    modes = ["Equipo local", "Equipo visitante", "Tirador local", "Portero local", "Tirador visitante",
+                             "Portero visitante"]
                     current_index = modes.index(self.selection_mode)
                     self.selection_mode = modes[(current_index + 1) % len(modes)]
 
@@ -273,22 +272,22 @@ class ConfigScreen:
 
                 elif event.key == pygame.K_UP:
                     # Cambiar equipos
-                    if self.selection_mode == "team_local":
+                    if self.selection_mode == "Equipo local":
                         self.selected_team_local = (self.selected_team_local - 1) % len(self.teams)
                         if self.selected_team_local == self.selected_team_visit:
                             self.selected_team_local = (self.selected_team_local - 1) % len(self.teams)
-                    elif self.selection_mode == "team_visit":
+                    elif self.selection_mode == "Equipo visitante":
                         self.selected_team_visit = (self.selected_team_visit - 1) % len(self.teams)
                         if self.selected_team_visit == self.selected_team_local:
                             self.selected_team_visit = (self.selected_team_visit - 1) % len(self.teams)
 
                 elif event.key == pygame.K_DOWN:
                     # Cambiar equipos
-                    if self.selection_mode == "team_local":
+                    if self.selection_mode == "Equipo local":
                         self.selected_team_local = (self.selected_team_local + 1) % len(self.teams)
                         if self.selected_team_local == self.selected_team_visit:
                             self.selected_team_local = (self.selected_team_local + 1) % len(self.teams)
-                    elif self.selection_mode == "team_visit":
+                    elif self.selection_mode == "Equipo visitante":
                         self.selected_team_visit = (self.selected_team_visit + 1) % len(self.teams)
                         if self.selected_team_visit == self.selected_team_local:
                             self.selected_team_visit = (self.selected_team_visit + 1) % len(self.teams)
@@ -310,13 +309,13 @@ class ConfigScreen:
 
     def cycle_selection(self):
         """Cicla entre las opciones del modo de selección actual"""
-        if self.selection_mode == "shooter_local":
+        if self.selection_mode == "Tirador local":
             self.selected_shooter_local = (self.selected_shooter_local + 1) % 3
-        elif self.selection_mode == "goalie_local":
+        elif self.selection_mode == "Portero local":
             self.selected_goalie_local = (self.selected_goalie_local + 1) % 3
-        elif self.selection_mode == "shooter_visit":
+        elif self.selection_mode == "Tirador visitante":
             self.selected_shooter_visit = (self.selected_shooter_visit + 1) % 3
-        elif self.selection_mode == "goalie_visit":
+        elif self.selection_mode == "Portero visitante":
             self.selected_goalie_visit = (self.selected_goalie_visit + 1) % 3
 
     def validate_configuration(self):
