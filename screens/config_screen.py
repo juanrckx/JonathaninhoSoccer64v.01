@@ -12,7 +12,7 @@ class ConfigScreen:
         pygame.display.set_caption('Jonathaninho Soccer 64 - Configuracion')
         self.audio_manager = audio_manager
 
-        self.background_image = self.load_background_image("background_image.png")
+        self.background_image = self.load_image("background_image.png")
 
         self.teams = self.load_teams_data()
         self.selected_team_local = 0
@@ -29,11 +29,6 @@ class ConfigScreen:
         self.selection_mode = "Equipo local"
 
         self.config_complete = False
-
-    def load_background_image(self, filename):
-        image_path = os.path.join(IMAGES_DIR, filename)
-        background_image = pygame.image.load(image_path)
-        return pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
     def load_teams_data(self):
         """Carga los datos de equipos y jugadores"""
@@ -224,13 +219,16 @@ class ConfigScreen:
         return complete_rect
 
     def draw(self):
-        # Fondo
+        # Fondo con imagen
         if self.background_image:
             self.screen.blit(self.background_image, (0, 0))
+
+            # Capa semi-transparente para mejorar legibilidad del texto
             overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-            overlay.fill((0, 0, 0, 180))
+            overlay.fill((0, 0, 0, 128))  # Negro semi-transparente (alpha = 128/255)
             self.screen.blit(overlay, (0, 0))
         else:
+            # Fallback: fondo verde sólido si no hay imagen
             self.screen.fill(GREEN)
 
         # Dibujar componentes
@@ -345,3 +343,4 @@ class ConfigScreen:
 
             self.draw()
             pygame.time.Clock().tick(60)
+        return None

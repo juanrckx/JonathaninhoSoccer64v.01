@@ -1,8 +1,6 @@
-import pygame
 import sys
 import os
 import random
-import math
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import *
 
@@ -10,8 +8,9 @@ class CoinTossScreen:
     def __init__(self, game_config, audio_manager=None):
         self.running = True
         pygame.display.set_caption("Jonathaninho Soccer 64 - Sorteo")
+        self.audio_manager = audio_manager
 
-        self.background_image = self.load_background_image("background_image.png")
+        self.background_image = self.load_image("background_image.png")
         self.game_config = game_config
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
@@ -34,7 +33,7 @@ class CoinTossScreen:
         self.animation_timer = 0
         self.result_timer = 0
 
-    def load_background_image(self, file_name):
+    def load_image(self, file_name):
         image_path = os.path.join(IMAGES_DIR, file_name)
         if os.path.exists(image_path):
             background = pygame.image.load(image_path)
@@ -174,13 +173,11 @@ class CoinTossScreen:
     def draw(self):
         """Dibuja toda la pantalla de sorteo"""
         # Fondo
-        if self.background_image:
-            self.screen.blit(self.background_image, (0, 0))
-            overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-            overlay.fill((0, 0, 0, 180))
-            self.screen.blit(overlay, (0, 0))
-        else:
-            self.screen.fill(GREEN)
+        self.screen.blit(self.background_image, (0, 0))
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 180))
+        self.screen.blit(overlay, (0, 0))
+
 
         # Información de equipos
         self.draw_teams_info()
@@ -229,3 +226,4 @@ class CoinTossScreen:
             self.update_animation()
             self.draw()
             pygame.time.Clock().tick(60)
+        return None

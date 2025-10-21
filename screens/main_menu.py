@@ -28,11 +28,6 @@ class MainMenu:
         image_path = os.path.join(IMAGES_DIR, file_name)
         return pygame.image.load(image_path)
 
-    def load_background_image(self):
-        """Carga la imagen de fondo"""
-        image_path = os.path.join(IMAGES_DIR, "background_image.png")
-        return pygame.image.load(image_path)
-
     def draw_glowing_button(self, text, rect, base_color, glow_color):
         glow_intensity = abs(pygame.time.get_ticks() % 2000 - 1000) / 1000
         current_glow = [int(base_color[i] + (glow_color[i] - base_color[i]) * glow_intensity) for i in range(3)]
@@ -135,5 +130,7 @@ class MainMenu:
             if action != "main_menu":
                 return action
 
+
             self.draw()
             pygame.time.Clock().tick(60)
+        return None

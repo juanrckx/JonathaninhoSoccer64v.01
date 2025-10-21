@@ -1,6 +1,4 @@
 import random
-
-import pygame
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -304,9 +302,10 @@ class GameScreen:
         """Ejecuta la pantalla de juego - CORREGIDO EL BUG"""
         while self.running:
             action = self.handle_events()
-            if action != "game":  # ✅ CORREGIDO: Retorna cuando NO es "game"
+            if action != "game":
                 return action
 
             self.update()
             self.draw()
             pygame.time.Clock().tick(60)
+        return None
