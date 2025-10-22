@@ -32,7 +32,6 @@ class ConfigScreen:
 
     def load_teams_data(self):
         """Carga los datos de equipos y jugadores"""
-        # TODO: Modificar con tus equipos y jugadores reales
         return [
             {
                 "name": "Real Madrid",

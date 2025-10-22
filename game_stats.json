@@ -1,0 +1,287 @@
+{
+  "total_games": 2,
+  "total_goals": 11,
+  "games": [
+    {
+      "timestamp": "2025-10-22T13:56:01.131513",
+      "score": {
+        "local": 4,
+        "visit": 1
+      },
+      "config": {
+        "team_local": {
+          "name": "Barcelona",
+          "shield": "team1.png",
+          "shooters": [
+            {
+              "name": "Ronaldinho Gaúcho",
+              "photo": "shooter1b.jpg"
+            },
+            {
+              "name": "Neymar",
+              "photo": "shooter2b.jpg"
+            },
+            {
+              "name": "Lionel Messi",
+              "photo": "shooter3b.jpg"
+            }
+          ],
+          "goalies": [
+            {
+              "name": "Marc-André ter Stegen",
+              "photo": "goalie1b.jpg"
+            },
+            {
+              "name": "Tomasz Szczęsny",
+              "photo": "goalie2b.png"
+            },
+            {
+              "name": "Claudio Bravo",
+              "photo": "goalie3b.jpg"
+            }
+          ]
+        },
+        "team_visit": {
+          "name": "Real Madrid",
+          "shield": "team2.png",
+          "shooters": [
+            {
+              "name": "Cristiano Ronaldo",
+              "photo": "shooter1a.jpg"
+            },
+            {
+              "name": "Luka Modrić",
+              "photo": "shooter2a.jpg"
+            },
+            {
+              "name": "Marcelo Vieira",
+              "photo": "shooter3a.jpg"
+            }
+          ],
+          "goalies": [
+            {
+              "name": "Iker Casillas",
+              "photo": "goalie1a.jpg"
+            },
+            {
+              "name": "Keylor Navas",
+              "photo": "goalie2a.jpg"
+            },
+            {
+              "name": "Thibaut Courtois",
+              "photo": "goalie3a.jpg"
+            }
+          ]
+        },
+        "shooter_local": 1,
+        "shooter_visit": 2,
+        "goalie_local": 1,
+        "goalie_visit": 2,
+        "change_mode": "auto"
+      },
+      "player_stats": {
+        "local": {
+          "goals": 4,
+          "shots": 5,
+          "timeouts": 0
+        },
+        "visit": {
+          "goals": 1,
+          "shots": 5,
+          "timeouts": 1
+        }
+      },
+      "winner": "local"
+    },
+    {
+      "timestamp": "2025-10-22T14:22:02.885305",
+      "score": {
+        "local": 2,
+        "visit": 4
+      },
+      "config": {
+        "team_local": {
+          "name": "Barcelona",
+          "shield": "team1.png",
+          "shooters": [
+            {
+              "name": "Ronaldinho Gaúcho",
+              "photo": "shooter1b.jpg"
+            },
+            {
+              "name": "Neymar",
+              "photo": "shooter2b.jpg"
+            },
+            {
+              "name": "Lionel Messi",
+              "photo": "shooter3b.jpg"
+            }
+          ],
+          "goalies": [
+            {
+              "name": "Marc-André ter Stegen",
+              "photo": "goalie1b.jpg"
+            },
+            {
+              "name": "Tomasz Szczęsny",
+              "photo": "goalie2b.png"
+            },
+            {
+              "name": "Claudio Bravo",
+              "photo": "goalie3b.jpg"
+            }
+          ]
+        },
+        "team_visit": {
+          "name": "Chelsea",
+          "shield": "team3.png",
+          "shooters": [
+            {
+              "name": "N'Golo Kanté",
+              "photo": "shooter1c.jpg"
+            },
+            {
+              "name": "Cole Palmer",
+              "photo": "shooter2c.jpg"
+            },
+            {
+              "name": "Eden Hazard",
+              "photo": "shooter3c.jpg"
+            }
+          ],
+          "goalies": [
+            {
+              "name": "Petr Čech",
+              "photo": "goalie1c.jpg"
+            },
+            {
+              "name": "Kepa Arrizabalaga",
+              "photo": "goalie2c.jpg"
+            },
+            {
+              "name": "Édouard Mendy",
+              "photo": "goalie3c.jpg"
+            }
+          ]
+        },
+        "shooter_local": 1,
+        "shooter_visit": 2,
+        "goalie_local": 1,
+        "goalie_visit": 2,
+        "change_mode": "auto"
+      },
+      "player_stats": {
+        "local": {
+          "goals": 2,
+          "shots": 5,
+          "timeouts": 0
+        },
+        "visit": {
+          "goals": 4,
+          "shots": 5,
+          "timeouts": 0
+        }
+      },
+      "winner": "visit"
+    }
+  ],
+  "players": {
+    "Neymar": {
+      "role": "shooter",
+      "team": "Barcelona",
+      "games": 2,
+      "goals": 6,
+      "shots": 10,
+      "timeouts": 0,
+      "wins": 0,
+      "losses": 0,
+      "draws": 0
+    },
+    "Tomasz Szczęsny": {
+      "role": "goalie",
+      "team": "Barcelona",
+      "games": 2,
+      "goals_received": 5,
+      "saves": 5,
+      "clean_sheets": 0,
+      "wins": 0,
+      "losses": 0,
+      "draws": 0
+    },
+    "Marcelo Vieira": {
+      "role": "shooter",
+      "team": "Real Madrid",
+      "games": 1,
+      "goals": 1,
+      "shots": 5,
+      "timeouts": 1,
+      "wins": 0,
+      "losses": 0,
+      "draws": 0
+    },
+    "Thibaut Courtois": {
+      "role": "goalie",
+      "team": "Real Madrid",
+      "games": 1,
+      "goals_received": 4,
+      "saves": 1,
+      "clean_sheets": 0,
+      "wins": 0,
+      "losses": 0,
+      "draws": 0
+    },
+    "Eden Hazard": {
+      "role": "shooter",
+      "team": "Chelsea",
+      "games": 1,
+      "goals": 4,
+      "shots": 5,
+      "timeouts": 0,
+      "wins": 0,
+      "losses": 0,
+      "draws": 0
+    },
+    "Édouard Mendy": {
+      "role": "goalie",
+      "team": "Chelsea",
+      "games": 1,
+      "goals_received": 2,
+      "saves": 3,
+      "clean_sheets": 0,
+      "wins": 0,
+      "losses": 0,
+      "draws": 0
+    }
+  },
+  "teams": {
+    "Barcelona": {
+      "games": 2,
+      "wins": 1,
+      "losses": 1,
+      "draws": 0,
+      "goals_for": 6,
+      "goals_against": 5
+    },
+    "Real Madrid": {
+      "games": 1,
+      "wins": 0,
+      "losses": 1,
+      "draws": 0,
+      "goals_for": 1,
+      "goals_against": 4
+    },
+    "Chelsea": {
+      "games": 1,
+      "wins": 1,
+      "losses": 0,
+      "draws": 0,
+      "goals_for": 4,
+      "goals_against": 2
+    }
+  },
+  "records": {
+    "most_goals_game": 6,
+    "best_accuracy": 80.0,
+    "longest_win_streak": 0
+  }
+}

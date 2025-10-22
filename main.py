@@ -13,6 +13,8 @@ from screens.config_screen import ConfigScreen
 from screens.instructions_screen import InstructionsScreen
 from screens.coin_toss_screen import CoinTossScreen
 from screens.game_screen import GameScreen
+from screens.stats_screen import StatsScreen
+from screens.stats_manager import StatsManager
 
 class AudioManager:
     def __init__(self):
@@ -41,26 +43,27 @@ class AudioManager:
 
 
 def main():
-    # Inicializar la ventana principal
     pygame.display.set_caption("Jonathaninho Soccer 64")
-
     pygame.mixer.init()
     audio_manager = AudioManager()
     audio_manager.load_sounds()
+
+    # NUEVO: Inicializar gestor de estadísticas
+    stats_manager = StatsManager()
 
     # Instanciar pantallas
     main_menu = MainMenu(audio_manager)
     about_screen = AboutScreen(audio_manager)
     instructions_screen = InstructionsScreen(audio_manager)
     config_screen = ConfigScreen(audio_manager)
-
+    stats_screen = StatsScreen(stats_manager, audio_manager)  # Pasar stats_manager
 
     # Navegación entre pantallas
     current_screen = "main_menu"
     coin_toss_screen = None
     game_config = None
+    game_screen = None
 
-    #Reproducir musica de fondo inicial
     audio_manager.play_music(BACKGROUND_MUSIC)
 
     running = True
@@ -74,6 +77,8 @@ def main():
                 current_screen = "config"
             elif action == "config":
                 current_screen = "config"
+            elif action == "stats":
+                current_screen = "stats"
             elif action == "quit":
                 running = False
 
@@ -88,41 +93,47 @@ def main():
             action, config = config_screen.run()
             if action == "start_game":
                 game_config = config
-                print("Configuracion:", game_config)
                 coin_toss_screen = CoinTossScreen(game_config, audio_manager)
                 current_screen = "coin_toss"
             elif action == "back" or action == "quit":
                 current_screen = "main_menu"
 
         elif current_screen == "coin_toss":
-            # Cambiar música para el sorteo
             audio_manager.play_music(GAME_MUSIC)
             action, updated_config = coin_toss_screen.run()
             if action == "start_game":
                 game_config = updated_config
                 game_screen = GameScreen(game_config, audio_manager)
-                # Restaurar música principal
                 audio_manager.play_music(GAME_MUSIC)
-                game_screen.start_cooldown()
+                # El juego ahora inicia automáticamente con cooldown
                 current_screen = "game"
             elif action == "back" or action == "quit":
-                # Restaurar música principal
                 audio_manager.play_music(BACKGROUND_MUSIC)
                 current_screen = "main_menu"
 
         elif current_screen == "game":
             action = game_screen.run()
             if action == "back" or action == "quit":
+                if game_screen.game_state == "finished":
+                    stats_manager.add_game(game_config, game_screen.player_stats, game_screen.score)
                 current_screen = "main_menu"
+
+            elif action == "stats":
+                stats_manager.add_game(game_config, game_screen.player_stats, game_screen.score)
+                current_screen = "stats"
 
         elif current_screen == "instructions":
             action = instructions_screen.run()
             if action == "back" or action == "quit":
                 current_screen = "about"
 
+        elif current_screen == "stats":
+            action = stats_screen.run()
+            if action == "back" or action == "quit":
+                current_screen = "main_menu"
+
     pygame.quit()
     sys.exit()
-
 
 if __name__ == "__main__":
     main()

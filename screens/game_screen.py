@@ -43,8 +43,11 @@ class GameScreen:
         self.result_timer = 0
         self.result_duration = 2000
 
-        self.player_stats = {"local": {"goals": 0, "shots": 0},
-                             "visit": {"goals": 0, "shots": 0}}
+        self.finished_timer = 0
+        self.finished_duration = 3000  # 3 segundos antes de ir a estadísticas
+
+        self.player_stats = {"local": {"goals": 0, "shots": 0, "timeouts": 0},
+                             "visit": {"goals": 0, "shots": 0, "timeouts": 0}}
 
 
 
@@ -126,7 +129,12 @@ class GameScreen:
         self.current_phase = "showing_result"
         self.result_timer = pygame.time.get_ticks()
 
+        self.handle_after_shot()
+
     def handle_after_shot(self):
+        if self.game_state == "finished":
+            return
+
         # Determinar siguiente estado
         if self.shots_taken[self.current_turn] >= self.max_shots:
             self.current_turn = "visit" if self.current_turn == "local" else "local"
@@ -179,6 +187,12 @@ class GameScreen:
             if current_time - self.auto_change_timer > self.auto_change_duration:
                 self.perform_player_change()
 
+        elif self.game_state == "finished":
+            if current_time - self.finished_timer > self.finished_duration:
+                return 'stats'
+
+        return 'game'
+
     def draw_cooldown_message(self):
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 180))
@@ -197,15 +211,15 @@ class GameScreen:
         self.screen.blit(info_text, (SCREEN_CENTER[0] - info_text.get_width() // 2, SCREEN_CENTER[1] - 100))
 
         # Mostrar equipo actual
-        team_text = header_font.render(f"Turno: {self.current_turn.upper()}", True, WHITE)
-        self.screen.blit(team_text, (SCREEN_CENTER[0] - team_text.get_width() // 2, SCREEN_CENTER[1] + 10))
+        #team_text = header_font.render(f"Turno: {self.current_turn.upper()}", True, WHITE)
+        #self.screen.blit(team_text, (SCREEN_CENTER[0] - team_text.get_width() // 2, SCREEN_CENTER[1] + 10))
 
     def draw_shot_timer(self):
         if self.shot_timer_active and self.current_phase == "waiting_shot":
             time_left = max(0, self.shot_timeout - (pygame.time.get_ticks() - self.shot_timer))
             seconds_left = (time_left // 1000) + 1
 
-            timer_y = SCREEN_CENTER - 100
+            timer_y = SCREEN_HEIGHT - 100
             timer_text = header_font.render(f"TIEMPO: {seconds_left}", True, RED if seconds_left < 1 else YELLOW)
 
             self.screen.blit(timer_text, (SCREEN_CENTER[0] - timer_text.get_width() // 2, timer_y))
@@ -241,23 +255,29 @@ class GameScreen:
             self.screen.blit(goalie_text, (SCREEN_CENTER[0] - goalie_text.get_width() // 2, change_y + 70))
 
     def draw_current_players(self):
-        #Local
+        #Local y visitante
+
         local_team = self.game_config["team_local"]
-        local_shooter = self.game_config["shooters"][self.current_shooter_local]
+        local_shooter = local_team["shooters"][self.current_shooter_local]
         local_goalie = local_team["goalies"][self.current_goalie_local]
 
         #Visitante
         visit_team = self.game_config["team_visit"]
-        visit_shooter = self.game_config["shooters"][self.current_shooter_visit]
+        visit_shooter =visit_team["shooters"][self.current_shooter_visit]
         visit_goalie = visit_team["goalies"][self.current_goalie_visit]
 
         y_pos = 200
-        local_text = text_font.render(f"Local: {local_shooter['name']} Artillero / {local_goalie['name']} Portero", True, YELLOW)
-        visit_text = text_font.render(f"Visitante: {visit_shooter['name']} Artillero / {visit_goalie['name']} Portero", True, YELLOW)
+        local_shooter_text = text_font.render(f"Artillero local: {local_shooter['name']}", True, YELLOW)
+        local_goalie_text = text_font.render(f"Portero local: {local_goalie['name']}", True, YELLOW)
 
-        self.screen.blit(local_text, (50, y_pos))
-        self.screen.blit(visit_text, (50, y_pos + 10))
+        visit_shooter_text = text_font.render(f"Artillero visitante: {visit_shooter['name']}", True, YELLOW)
+        visit_goalie_text = text_font.render(f"Portero visitante: {visit_goalie['name']}", True, YELLOW)
 
+        self.screen.blit(local_shooter_text, (50, y_pos))
+        self.screen.blit(local_goalie_text, (50, y_pos + 20))
+
+        self.screen.blit(visit_shooter_text, (650, y_pos))
+        self.screen.blit(visit_goalie_text, (650, y_pos + 20))
     def draw(self):
         if self.background_image:
             screen.blit(self.background_image, (0, 0))
@@ -302,6 +322,9 @@ class GameScreen:
                     return 'back'
 
                 elif event.key == pygame.K_SPACE and self.game_state == "finished":
+                    return 'stats'
+
+                elif event.key == pygame.K_ESCAPE and self.game_state == "finished":
                     return 'back'
 
                 elif self.current_phase == "waiting_shot" and self.game_state == "playing":
@@ -417,8 +440,9 @@ class GameScreen:
             self.screen.blit(message_text, (SCREEN_CENTER[0] - message_text.get_width() // 2, result_y - 30))
 
             # Mostrar posición del tiro
-            shot_text = text_font.render(f"Tiro en paleta: {self.last_shot_position + 1}", True, LIGHT_BLUE)
-            self.screen.blit(shot_text, (SCREEN_CENTER[0] - shot_text.get_width() // 2, result_y - 55))
+            if self.last_shot_result is not None:
+                shot_text = text_font.render(f"Tiro en paleta: {self.last_shot_position}", True, LIGHT_BLUE)
+                self.screen.blit(shot_text, (SCREEN_CENTER[0] - shot_text.get_width() // 2, result_y - 55))
 
     def draw_game_finished(self):
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
@@ -461,7 +485,10 @@ class GameScreen:
             if action != "game":
                 return action
 
-            self.update()
+            update_result = self.update()
+            if update_result != "game":
+                return update_result
+
             self.draw()
             pygame.time.Clock().tick(60)
         return None
