@@ -6,11 +6,13 @@ from config import *
 
 
 class ConfigScreen:
-    def __init__(self, audio_manager=None):
+    def __init__(self, audio_manager=None, hardware_manager=None):
         self.running = True
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        pygame.display.set_caption('Jonathaninho Soccer 64 - Configuracion')
+        pygame.display.set_caption('Jonathaninho Soccer 64')
         self.audio_manager = audio_manager
+        self.hardware_manager = hardware_manager
+        self.setup_hardware_callbacks()
 
         self.background_image = self.load_image("background_image.png")
 
@@ -29,6 +31,46 @@ class ConfigScreen:
         self.selection_mode = "Equipo local"
 
         self.config_complete = False
+
+    def setup_hardware_callbacks(self):
+        if self.hardware_manager and self.hardware_manager.connected:
+            self.hardware_manager.register_callback("potentiometer", self.on_potentiometer_change)
+            self.hardware_manager.register_callback("button", self.on_button_press)
+
+    def on_potentiometer_change(self, value):
+        if self.selection_mode == "Equipo local":
+            max_teams = len(self.teams)
+            self.selected_team_local = (value * max_teams) // 1024
+            if self.selected_team_local == self.selected_team_visit:
+                self.selected_team_local = (self.selected_team_local + 1) % max_teams
+
+        elif self.selection_mode == "Equipo visitante":
+            max_teams = len(self.teams)
+            self.selected_team_visit = (value * max_teams) // 1024
+            if self.selected_team_visit == self.selected_team_local:
+                self.selected_team_visit = (self.selected_team_visit + 1) % max_teams
+
+        elif self.selection_mode == "Tirador local":
+            self.selected_shooter_local = (value * 3) // 1024 % 3
+
+        elif self.selection_mode == "Portero local":
+            self.selected_goalie_local = (value * 3) // 1024 % 3
+
+        elif self.selection_mode == "Tirador visitante":
+            self.selected_shooter_visit = (value * 3) // 1024 % 3
+
+        elif self.selection_mode == "Portero visitante":
+            self.selected_goalie_visit = (value * 3) // 1024 % 3
+
+    def on_button_press(self, data):
+        if data["button"] == "btn1" and data["state"]:
+            modes = ["Equipo local", "Equipo visitante", "Tirador local",
+                     "Portero local", "Tirador visitante", "Portero visitante"]
+            current_index = modes.index(self.selection_mode)
+            self.selection_mode = modes[(current_index + 1) %len(modes)]
+
+
+
 
     def load_teams_data(self):
         """Carga los datos de equipos y jugadores"""
@@ -240,7 +282,6 @@ class ConfigScreen:
 
         return auto_rect, manual_rect, complete_rect
 
-
     def handle_events(self):
         """Maneja eventos de la pantalla de configuración"""
         auto_rect, manual_rect, complete_rect = self.draw()
@@ -253,22 +294,18 @@ class ConfigScreen:
                 if event.key == pygame.K_ESCAPE:
                     return "back"
                 elif event.key == pygame.K_RETURN:
-                    if self.config_complete:
+                    if self.validate_configuration():
+                        self.config_complete = True
                         return "start_game"
                 elif event.key == pygame.K_TAB:
-
-                    # Cambiar modo de selección
                     modes = ["Equipo local", "Equipo visitante", "Tirador local", "Portero local", "Tirador visitante",
                              "Portero visitante"]
                     current_index = modes.index(self.selection_mode)
                     self.selection_mode = modes[(current_index + 1) % len(modes)]
-
                 elif event.key == pygame.K_SPACE:
-                    # Cambiar jugador seleccionado (simula potenciómetro)
                     self.cycle_selection()
 
                 elif event.key == pygame.K_UP:
-                    # Cambiar equipos
                     if self.selection_mode == "Equipo local":
                         self.selected_team_local = (self.selected_team_local - 1) % len(self.teams)
                         if self.selected_team_local == self.selected_team_visit:
@@ -279,7 +316,6 @@ class ConfigScreen:
                             self.selected_team_visit = (self.selected_team_visit - 1) % len(self.teams)
 
                 elif event.key == pygame.K_DOWN:
-                    # Cambiar equipos
                     if self.selection_mode == "Equipo local":
                         self.selected_team_local = (self.selected_team_local + 1) % len(self.teams)
                         if self.selected_team_local == self.selected_team_visit:
@@ -291,8 +327,6 @@ class ConfigScreen:
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
-
-                # Modo de cambio
                 if auto_rect.collidepoint(mouse_pos):
                     self.change_mode = "auto"
                 elif manual_rect.collidepoint(mouse_pos):
@@ -301,6 +335,30 @@ class ConfigScreen:
                     if self.validate_configuration():
                         self.config_complete = True
                         return "start_game"
+
+        # VERIFICACIÓN MEJORADA DE BOTONES DE HARDWARE
+        if self.hardware_manager and self.hardware_manager.connected:
+            # Crear copia temporal para evitar cambios durante la verificación
+            button_states = self.hardware_manager.button_states.copy()
+
+            # BTN2: SOLO iniciar juego - con protección contra detección múltiple
+            if button_states.get("btn2"):
+                print("🔘 BTN2 detectado: Intentando iniciar juego")
+                # Resetear inmediatamente después de detectar
+                self.hardware_manager.button_states["btn2"] = False
+                if self.validate_configuration():
+                    print("✅ Configuración válida - Iniciando juego")
+                    self.config_complete = True
+                    return "start_game"
+                else:
+                    print("❌ Configuración inválida - No se puede iniciar")
+
+            # BTN3: SOLO regresar - con protección contra detección múltiple
+            elif button_states.get("btn3"):
+                print("🔘 BTN3 detectado: Regresando al menú")
+                # Resetear inmediatamente después de detectar
+                self.hardware_manager.button_states["btn3"] = False
+                return "back"
 
         return "config"
 
@@ -335,11 +393,20 @@ class ConfigScreen:
                 "change_mode": self.change_mode}
 
     def run(self):
+        if self.hardware_manager and self.hardware_manager.connected:
+            self.hardware_manager.button_states = {"btn1": False, "btn2": False, "btn3": False}
+        self.running = True
+        self.config_complete = False
+
         while self.running:
             action = self.handle_events()
             if action != "config":
-                return action, self.get_configuration() if action == "start_game" else None
+                if action == "start_game":
+                    return action, self.get_configuration()
+                else:
+                    self.running = False
+                    return action, None
 
             self.draw()
             pygame.time.Clock().tick(60)
-        return None
+        return "back", None

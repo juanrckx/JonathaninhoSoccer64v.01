@@ -5,9 +5,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import *
 
 class CoinTossScreen:
-    def __init__(self, game_config, audio_manager=None):
+    def __init__(self, game_config, audio_manager=None, hardware_manager=None):
         self.running = True
-        pygame.display.set_caption("Jonathaninho Soccer 64 - Sorteo")
+        pygame.display.set_caption("Jonathaninho Soccer 64")
         self.audio_manager = audio_manager
 
         self.background_image = self.load_image("background_image.png")

@@ -10,6 +10,21 @@ LIGHT_BLUE = 0, 200, 255
 BLUE = 0, 0, 255
 RED = 255, 0, 0
 
+#HARDWARE
+WIFI_CONFIG = {'ssid': 'Fam-Casasola',
+               'password': 'Elibriga1800'}
+
+HARDWARE_CONFIG = {
+    'potentiometer': 26,
+    'buttons': [15,14,13],
+    'palettes': [16,17,28,19,20,21],
+    'leds': [0,1,2,3,4,5],
+    'status_led': 25
+}
+
+SERVER_CONFIG = {'port': 1717,
+                 'timeout': 10}
+
 # Rutas de archivos de audio
 BACKGROUND_MUSIC = "background_music.mp3"
 GAME_MUSIC = "game_music.mp3"

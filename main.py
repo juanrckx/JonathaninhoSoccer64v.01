@@ -1,7 +1,11 @@
 # main.py
+import time
+
 import pygame
 import sys
 import os
+
+import hardware_manager
 
 # Agregar la carpeta screens al path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'screens'))
@@ -15,6 +19,7 @@ from screens.coin_toss_screen import CoinTossScreen
 from screens.game_screen import GameScreen
 from screens.stats_screen import StatsScreen
 from screens.stats_manager import StatsManager
+from hardware_manager import HardwareManager
 
 class AudioManager:
     def __init__(self):
@@ -48,14 +53,32 @@ def main():
     audio_manager = AudioManager()
     audio_manager.load_sounds()
 
-    # NUEVO: Inicializar gestor de estadísticas
+    #Inicializar gestor de estadísticas
     stats_manager = StatsManager()
+
+    #Hardware
+    hardware_manager = HardwareManager()
+
+    hardware_connected = False
+    for attempt in range(3):
+        print(f"🔌 Intentando conexión {attempt + 1}/3...")
+        hardware_connected = hardware_manager.connect()
+        if hardware_connected:
+            break
+        time.sleep(2)
+
+    if hardware_connected:
+        print("✅ Hardware conectado exitosamente")
+        # Enviar comando de prueba
+        hardware_manager.send_command("BLINK:3")
+    else:
+        print("⚠️ Modo sin hardware - Usando controles de teclado")
 
     # Instanciar pantallas
     main_menu = MainMenu(audio_manager)
     about_screen = AboutScreen(audio_manager)
     instructions_screen = InstructionsScreen(audio_manager)
-    config_screen = ConfigScreen(audio_manager)
+    config_screen = ConfigScreen(audio_manager, hardware_manager)
     stats_screen = StatsScreen(stats_manager, audio_manager)  # Pasar stats_manager
 
     # Navegación entre pantallas
@@ -90,6 +113,7 @@ def main():
                 current_screen = "main_menu"
 
         elif current_screen == "config":
+            config_screen = ConfigScreen(audio_manager, hardware_manager)
             action, config = config_screen.run()
             if action == "start_game":
                 game_config = config
@@ -103,7 +127,7 @@ def main():
             action, updated_config = coin_toss_screen.run()
             if action == "start_game":
                 game_config = updated_config
-                game_screen = GameScreen(game_config, audio_manager)
+                game_screen = GameScreen(game_config, audio_manager, hardware_manager)
                 audio_manager.play_music(GAME_MUSIC)
                 # El juego ahora inicia automáticamente con cooldown
                 current_screen = "game"

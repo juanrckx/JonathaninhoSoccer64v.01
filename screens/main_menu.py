@@ -7,7 +7,7 @@ class MainMenu:
     def __init__(self, audio_manager=None):
         self.running = True
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        pygame.display.set_caption("Jonathaninho Soccer 64 - Pantalla principal")
+        pygame.display.set_caption("Jonathaninho Soccer 64")
 
         self.audio_manager = audio_manager
 

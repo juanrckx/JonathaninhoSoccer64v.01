@@ -11,7 +11,7 @@ class StatsScreen:
     def __init__(self, stats_manager, audio_manager=None):
         self.running = True
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        pygame.display.set_caption('Jonathaninho Soccer 64 - Estadísticas')
+        pygame.display.set_caption('Jonathaninho Soccer 64')
         self.audio_manager = audio_manager
         self.background_image = self.load_image("background_image.png")
         self.stats_manager = stats_manager

@@ -8,13 +8,16 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import *
 
 class GameScreen:
-    def __init__(self, game_config, audio_manager=None):
+    def __init__(self, game_config, audio_manager=None, hardware_manager=None):
         self.running = True
         pygame.display.set_caption("Jonathaninho Soccer 64 - Partida")
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.game_config = game_config
         self.background_image = self.load_image("background_image.png")
         self.audio_manager = audio_manager
+        self.hardware_manager = hardware_manager
+        self.hardware_shot_selection = 0
+        self.setup_hardware_callbacks()
 
         #Estados del juego
         self.score = {"local": 0, "visit": 0}
@@ -57,6 +60,40 @@ class GameScreen:
         self.current_goalie_visit = game_config.get("goalie_visit", 0)
 
         self.start_cooldown()
+
+    def setup_hardware_callbacks(self):
+        """Configura callbacks para el hardware durante el juego"""
+        if self.hardware_manager and self.hardware_manager.connected:
+            self.hardware_manager.register_callback("potentiometer", self.on_potentiometer_change)
+            self.hardware_manager.register_callback("button", self.on_button_press)
+            self.hardware_manager.register_callback("palette", self.on_palette_trigger)
+
+    def on_potentiometer_change(self, value):
+        """Selecciona paleta con potenciómetro durante el turno de tiro"""
+        if self.current_phase == "waiting_shot":
+            self.hardware_shot_selection = (value * 6) // 1024  # Mapear a 0-5
+
+    def on_button_press(self, data):
+        """Maneja botones durante el juego"""
+        if data["button"] == "btn1" and data["state"]:
+            if self.current_phase == "changing_players_manual":
+                self.perform_player_change()
+
+        elif data["button"] == "btn2" and data["state"]:
+            # BTN2: Cambio manual de jugador
+            if self.current_phase == "waiting_shot" and self.game_state == "playing":
+                self.handle_shot(self.hardware_shot_selection)
+
+        elif data["button"] == "btn3" and data["state"]:
+            # BTN3: Regresar al menú principal
+            print("🔘 BTN3: Regresando al menú principal desde el juego")
+            self.running = False
+
+    def on_palette_trigger(self, data):
+        """Detección directa de paleta (modo automático)"""
+        if data["state"] and self.current_phase == "waiting_shot":
+            # Disparo automático cuando la pelota pasa por una paleta
+            self.handle_shot(data["palette"])
 
     def start_cooldown(self):
         self.game_state = "cooldown"
@@ -336,6 +373,9 @@ class GameScreen:
                 elif self.current_phase == "changing_players_manual" and event.key == pygame.K_c:
                     self.perform_player_change()
 
+        if self.hardware_manager and self.hardware_manager.button_states.get("btn3"):
+            return "back"
+
         return "game"
 
 
@@ -402,7 +442,9 @@ class GameScreen:
         for i in range(6):
             palette_x = SCREEN_CENTER[0] - goal_width // 2 + (i * (goal_width // 6))
 
-            # Resaltar la última paleta disparada
+            if i == self.hardware_shot_selection and self.current_phase == "waiting_shot":
+                pygame.draw.rect(self.screen, YELLOW, (palette_x, goal_y, goal_width // 6, 100), 3)            # Resaltar la última paleta disparada
+
             if self.last_shot_position == i and self.current_phase == "showing_result":
                 color = YELLOW if self.last_shot_result else RED
                 pygame.draw.rect(self.screen, color, (palette_x, goal_y, goal_width // 6, 100))
