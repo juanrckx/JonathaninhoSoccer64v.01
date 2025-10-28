@@ -1,5 +1,5 @@
 JONATHANINHO SOCCER 64
-📋 Descripción del Proyecto
+Descripción del Proyecto
 Sistema interactivo de futbolín de tipo penalties que combina una maqueta física con un videojuego en Python, desarrollado como proyecto académico para el curso CE-1104 Fundamentos de Sistemas Computacionales.
 
 Características Principales:
@@ -27,7 +27,7 @@ bash:
 - pip install pygame
 
 bash:
-- git clone https://github.com/tu-usuario/cefoot-v4.1.git
+- git clone https://github.com/tu-usuario/JonathaninhoSoccer64v.01.git
 - cd Jonathaninho Soccer 64
 
 bash:
@@ -67,17 +67,6 @@ LED 3 → GPIO 11
 LED 4 → GPIO 12
 LED 5 → GPIO 13
 
-Configuración WiFi:
-- Editar:
-WIFI_SSID = "tu-red-wifi"
-WIFI_PASSWORD = "tu-contraseña"
-SERVER_PORT = 1717
-
-Desarrollo y Contribuciones
-- Desarrolladores:
-Juan Jose Rodriguez - 2025094370
-Gabriel Brenes - 2025119612
-
 Estructura:
 JonathaninhoSoccer64v1.0/
 ├── screens/                 # Pantallas de la aplicación
@@ -106,6 +95,18 @@ JonathaninhoSoccer64v1.0/
 ├── config.py                # Configuración global
 ├── main.py                  # Aplicación principal
 └── README.md               # Este archivo
+
+Configuración WiFi:
+- Editar:
+WIFI_SSID = "tu-red-wifi"
+WIFI_PASSWORD = "tu-contraseña"
+SERVER_PORT = 1717
+
+Desarrollo y Contribuciones
+- Desarrolladores:
+Juan Jose Rodriguez - 2025094370
+Gabriel Brenes - 2025119612
+
 
 - Curso:
 CE-1104 Fundamentos de Sistemas Computacionales
