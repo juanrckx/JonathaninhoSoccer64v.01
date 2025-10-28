@@ -49,50 +49,50 @@ Cómo jugar:
 4. TAB: Cambiar modo de selección
 
 Configuración Hardware:
-POTENCIÓMETRO → GPIO 26 (ADC)
-BOTÓN 1 → GPIO 15
-BOTÓN 2 → GPIO 14  
-PALETA 0 → GPIO 1
-PALETA 1 → GPIO 2
-PALETA 2 → GPIO 3
-PALETA 3 → GPIO 4
-PALETA 4 → GPIO 5
-PALETA 5 → GPIO 6
-LED 0 → GPIO 8
-LED 1 → GPIO 9
-LED 2 → GPIO 10
-LED 3 → GPIO 11
-LED 4 → GPIO 12
-LED 5 → GPIO 13
+- POTENCIÓMETRO → GPIO 26 (ADC)
+- BOTÓN 1 → GPIO 15
+- BOTÓN 2 → GPIO 14  
+- PALETA 0 → GPIO 1
+- PALETA 1 → GPIO 2
+- PALETA 2 → GPIO 3
+- PALETA 3 → GPIO 4
+- PALETA 4 → GPIO 5
+- PALETA 5 → GPIO 6
+- LED 0 → GPIO 8
+- LED 1 → GPIO 9
+- LED 2 → GPIO 10
+- LED 3 → GPIO 11
+- LED 4 → GPIO 12
+- LED 5 → GPIO 13
 
 Estructura:
-JonathaninhoSoccer64v1.0/
-├── screens/                 # Pantallas de la aplicación
-│   ├── main_menu.py           # Menú principal
-│   ├── about_screen.py        # Acerca del proyecto
-│   ├── config_screen.py       # Configuración de partida
-│   ├── game_screen.py         # Juego principal
-│   ├── coin_toss_screen.py    # Sorteo de moneda
-│   ├── stats_screen.py        # Estadísticas
-│   ├── stats_manager.py       # Gestor de estadísticas
-│   └── instructions_screen.py # Instrucciones
-├── images/                 # Recursos gráficos
-│   ├── title_image.png
-│   ├── background_image.png
-│   ├── author1.jpg, author2.jpg
-│   ├── team1.png, team2.png, team3.png
-│   └── players/           # Fotos de jugadores
-├── sounds/                # Efectos de sonido
-│   ├── background_music.mp3
-│   ├── game_music.mp3
-│   ├── whistle.mp3
-│   ├── cheer.mp3
-│   └── boo.mp3
-├── hardware/              # Código para Pico W
-│   └── main(raspberry).py       # Firmware principal
-├── config.py                # Configuración global
-├── main.py                  # Aplicación principal
-└── README.md               # Este archivo
+- JonathaninhoSoccer64v1.0/
+- ├── screens/                 # Pantallas de la aplicación
+- │   ├── main_menu.py           # Menú principal
+- │   ├── about_screen.py        # Acerca del proyecto
+- │   ├── config_screen.py       # Configuración de partida
+- │   ├── game_screen.py         # Juego principal
+- │   ├── coin_toss_screen.py    # Sorteo de moneda
+- │   ├── stats_screen.py        # Estadísticas
+- │   ├── stats_manager.py       # Gestor de estadísticas
+- │   └── instructions_screen.py # Instrucciones
+- ├── images/                 # Recursos gráficos
+- │   ├── title_image.png
+- │   ├── background_image.png
+- │   ├── author1.jpg, author2.jpg
+- │   ├── team1.png, team2.png, team3.png
+- │   └── players/           # Fotos de jugadores
+- ├── sounds/                # Efectos de sonido
+- │   ├── background_music.mp3
+- │   ├── game_music.mp3
+- │   ├── whistle.mp3
+- │   ├── cheer.mp3
+- │   └── boo.mp3
+- ├── hardware/              # Código para Pico W
+- │   └── main(raspberry).py       # Firmware principal
+- ├── config.py                # Configuración global
+- ├── main.py                  # Aplicación principal
+- └── README.md               # Este archivo
 
 Configuración WiFi:
 - Editar:
