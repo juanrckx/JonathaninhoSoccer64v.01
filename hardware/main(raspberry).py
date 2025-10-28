@@ -476,7 +476,6 @@ def update_celebration_animation():
     elif celebration_step < celebration_level and elapsed_step > celebration_speed:
         celebration_step += 1
         celebration_step_timer = current_time
-        print(f"🎉 Progresión: paso {celebration_step} de {celebration_level}")
     
     # ACTUALIZAR LEDs SEGÚN ANIMACIÓN
     for i in range(6):
