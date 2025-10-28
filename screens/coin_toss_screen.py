@@ -9,6 +9,7 @@ class CoinTossScreen:
         self.running = True
         pygame.display.set_caption("Jonathaninho Soccer 64")
         self.audio_manager = audio_manager
+        self.hardware_manager = hardware_manager
 
         self.background_image = self.load_image("background_image.png")
         self.game_config = game_config
@@ -210,6 +211,15 @@ class CoinTossScreen:
                         self.coin_rotation_speed = 25
                         self.coin_velocity = -15
                         self.coin_y = SCREEN_HEIGHT // 3
+
+        if self.hardware_manager and self.hardware_manager.connected:
+            # Crear copia temporal para evitar cambios durante la verificación
+            button_states = self.hardware_manager.button_states.copy()
+
+            # BTN1: SOLO iniciar juego - con protección contra detección múltiple
+            if button_states.get("btn1") and self.animation_state == "complete":
+                self.hardware_manager.button_states["btn1"] = False
+                return "start_game"
 
         return "coin_toss"
 

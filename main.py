@@ -75,7 +75,7 @@ def main():
         print("⚠️ Modo sin hardware - Usando controles de teclado")
 
     # Instanciar pantallas
-    main_menu = MainMenu(audio_manager)
+    main_menu = MainMenu(audio_manager, hardware_manager)
     about_screen = AboutScreen(audio_manager)
     instructions_screen = InstructionsScreen(audio_manager)
     config_screen = ConfigScreen(audio_manager, hardware_manager)
@@ -117,7 +117,7 @@ def main():
             action, config = config_screen.run()
             if action == "start_game":
                 game_config = config
-                coin_toss_screen = CoinTossScreen(game_config, audio_manager)
+                coin_toss_screen = CoinTossScreen(game_config, audio_manager, hardware_manager)
                 current_screen = "coin_toss"
             elif action == "back" or action == "quit":
                 current_screen = "main_menu"

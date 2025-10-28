@@ -5,8 +5,8 @@ import json
 
 class HardwareManager:
     def __init__(self):
-        self.server_ip = "192.168.1.107"  # IP de tu Pico W
-        self.server_port = 1717  # CORREGIDO
+        self.server_ip = "192.168.18.237"  # IP
+        self.server_port = 1717 
         self.client_socket = None
         self.connected = False
         self.potentiometer_value = 0

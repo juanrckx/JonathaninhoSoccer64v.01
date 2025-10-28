@@ -4,12 +4,13 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import *
 
 class MainMenu:
-    def __init__(self, audio_manager=None):
+    def __init__(self, audio_manager=None, hardware_manager=None):
         self.running = True
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Jonathaninho Soccer 64")
 
         self.audio_manager = audio_manager
+        self.hardware_manager = hardware_manager
 
         self.title_image = self.load_image("title_image.png")
         self.background_image = self.load_image("background_image.png")
@@ -119,6 +120,13 @@ class MainMenu:
                     for button in buttons:
                         if button["drawn_rect"].collidepoint(mouse_pos):
                             return button["action"]
+
+        if self.hardware_manager and self.hardware_manager.connected:
+            button_states = self.hardware_manager.button_states.copy()
+
+            if button_states.get('btn1'):
+                self.hardware_manager.button_states['btn1'] = False
+                return "config"
 
         return "main_menu"
 

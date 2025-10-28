@@ -343,22 +343,11 @@ class ConfigScreen:
 
             # BTN2: SOLO iniciar juego - con protección contra detección múltiple
             if button_states.get("btn2"):
-                print("🔘 BTN2 detectado: Intentando iniciar juego")
                 # Resetear inmediatamente después de detectar
                 self.hardware_manager.button_states["btn2"] = False
                 if self.validate_configuration():
-                    print("✅ Configuración válida - Iniciando juego")
                     self.config_complete = True
                     return "start_game"
-                else:
-                    print("❌ Configuración inválida - No se puede iniciar")
-
-            # BTN3: SOLO regresar - con protección contra detección múltiple
-            elif button_states.get("btn3"):
-                print("🔘 BTN3 detectado: Regresando al menú")
-                # Resetear inmediatamente después de detectar
-                self.hardware_manager.button_states["btn3"] = False
-                return "back"
 
         return "config"
 

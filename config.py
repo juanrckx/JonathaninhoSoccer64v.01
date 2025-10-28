@@ -11,14 +11,14 @@ BLUE = 0, 0, 255
 RED = 255, 0, 0
 
 #HARDWARE
-WIFI_CONFIG = {'ssid': 'Fam-Casasola',
-               'password': 'Elibriga1800'}
+WIFI_CONFIG = {'ssid': 'Casa4',
+               'password': 'cartago04'}
 
 HARDWARE_CONFIG = {
     'potentiometer': 26,
-    'buttons': [15,14,13],
-    'palettes': [16,17,28,19,20,21],
-    'leds': [0,1,2,3,4,5],
+    'buttons': [15, 14, 13],
+    'palettes': [1, 2, 3, 4, 5, 6],
+    'leds': [8, 9, 10, 11, 12, 13],
     'status_led': 25
 }
 

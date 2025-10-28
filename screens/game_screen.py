@@ -29,7 +29,7 @@ class GameScreen:
         self.cooldown_duration = 3000 # 3 segundos de preparacion
 
         self.shot_timer = 0
-        self.shot_timeout = 3000 # 3 segundos para cobrar despues del pito
+        self.shot_timeout = 5000 # 3 segundos para cobrar despues del pito
         self.shot_timer_active = False
 
         self.player_change_timer = 0
@@ -90,10 +90,18 @@ class GameScreen:
             self.running = False
 
     def on_palette_trigger(self, data):
-        """Detección directa de paleta (modo automático)"""
-        if data["state"] and self.current_phase == "waiting_shot":
-            # Disparo automático cuando la pelota pasa por una paleta
-            self.handle_shot(data["palette"])
+        """MEJORA: Manejo robusto de detección de paletas"""
+        palette_num = data["palette"]
+        state = data["state"]
+
+        print(f"🎯 Paleta {palette_num} {'ACTIVADA' if state else 'DESACTIVADA'} - Fase: {self.current_phase}")
+
+        # Solo procesar activaciones (state=True) durante el turno de tiro
+        if state and self.current_phase == "waiting_shot" and self.game_state == "playing":
+            print(f"⚽ DISPARO DETECTADO en paleta {palette_num}")
+            self.handle_shot(palette_num)
+        elif state:
+            print(f"🎯 Paleta {palette_num} activada pero ignorada (fase: {self.current_phase})")
 
     def start_cooldown(self):
         self.game_state = "cooldown"
@@ -111,6 +119,9 @@ class GameScreen:
 
         if self.audio_manager:
             self.audio_manager.play_sound("whistle")
+
+        if self.hardware_manager:
+            self.hardware_manager.send_command("CELEBRATE_STOP")
 
     def check_shot_timeout(self):
         if (self.shot_timer_active and
@@ -156,8 +167,33 @@ class GameScreen:
                 self.score[self.current_turn] += 1
                 self.player_stats[self.current_turn]["goals"] += 1
                 self.audio_manager.play_sound("cheer")
+                if self.hardware_manager:
+                    self.hardware_manager.send_command("CELEBRATE_MAX")
             else:
                 self.audio_manager.play_sound("boo")
+                closeness = self.calculate_closeness_to_goal(shot_position)
+
+                if self.hardware_manager:
+                    if closeness > 0.8:
+                        # Muy cerca del gol - 5 LEDs progresivos
+                        self.hardware_manager.send_command("CELEBRATE:5")
+                        print("🎯 Casi gol! Animación de 5 LEDs")
+                    elif closeness > 0.6:
+                        # Cerca del gol - 4 LEDs progresivos
+                        self.hardware_manager.send_command("CELEBRATE:4")
+                        print("👍 Tiro cercano! Animación de 4 LEDs")
+                    elif closeness > 0.4:
+                        # Tiro medio - 3 LEDs progresivos
+                        self.hardware_manager.send_command("CELEBRATE:3")
+                        print("👌 Tiro medio! Animación de 3 LEDs")
+                    elif closeness > 0.2:
+                        # Tiro lejano - 2 LEDs progresivos
+                        self.hardware_manager.send_command("CELEBRATE:2")
+                        print("👎 Tiro lejano! Animación de 2 LEDs")
+                    else:
+                        # Muy lejos - 1 LED progresivo
+                        self.hardware_manager.send_command("CELEBRATE:1")
+                        print("❌ Muy lejos! Animación de 1 LED")
 
         self.player_stats[self.current_turn]["shots"] += 1
         self.shots_taken[self.current_turn] += 1
@@ -167,6 +203,23 @@ class GameScreen:
         self.result_timer = pygame.time.get_ticks()
 
         self.handle_after_shot()
+
+    def calculate_closeness_to_goal(self, shot_position):
+        """Calcular qué tan cerca estuvo el tiro de ser gol (0.0 a 1.0)"""
+        if not self.goalkeeper_position:
+            return 0.0
+
+        # Si el portero cubre múltiples posiciones, calcular proximidad
+        min_distance = 6  # Máxima distancia posible
+
+        for covered_pos in self.goalkeeper_position:
+            distance = abs(shot_position - covered_pos)
+            if distance < min_distance:
+                min_distance = distance
+
+        # Convertir a valor entre 0.0 y 1.0 (1.0 = muy cerca, 0.0 = muy lejos)
+        closeness = 1.0 - (min_distance / 3.0)  # Normalizar
+        return max(0.0, min(1.0, closeness))
 
     def handle_after_shot(self):
         if self.game_state == "finished":
