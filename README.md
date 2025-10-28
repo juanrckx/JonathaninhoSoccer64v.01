@@ -1,6 +1,4 @@
-JONATHANINHO SOCCER 64
-Descripción del Proyecto
-Sistema interactivo de futbolín de tipo penalties que combina una maqueta física con un videojuego en Python, desarrollado como proyecto académico para el curso CE-1104 Fundamentos de Sistemas Computacionales.
+JONATHANINHO SOCCER 64 es un sistema interactivo de futbolín de tipo penalties que combina una maqueta física con un videojuego en Python, desarrollado como proyecto académico para el curso CE-1104 Fundamentos de Sistemas Computacionales.
 
 Características Principales:
 - Juego de penalties con 5 tiros por equipo
