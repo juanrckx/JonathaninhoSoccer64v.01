@@ -24,10 +24,8 @@ class HardwareManager:
 
             # Iniciar hilo para recibir mensajes
             threading.Thread(target=self._receive_messages, daemon=True).start()
-            print(f"✅ Conectado al hardware en {self.server_ip}:{self.server_port}")
             return True
         except Exception as e:
-            print(f"❌ Error conectando al hardware: {e}")
             return False
 
     def _receive_messages(self):
@@ -36,7 +34,6 @@ class HardwareManager:
             try:
                 data = self.client_socket.recv(1024).decode('utf-8')
                 if not data:
-                    print("Conexión cerrada por el servidor")
                     break
 
                 buffer += data
@@ -60,8 +57,6 @@ class HardwareManager:
         print(f"RAW: {message}")
         """Interpreta mensajes del hardware según el protocolo"""
         try:
-            print(f"📨 Mensaje recibido: {message}")  # DEBUG
-
             if message.startswith("POT:"):
                 value = int(message.split(":")[1])
                 self.potentiometer_value = value
@@ -93,7 +88,6 @@ class HardwareManager:
         if event_type not in self.callbacks:
             self.callbacks[event_type] = []
         self.callbacks[event_type].append(callback)
-        print(f"📝 Callback registrado para: {event_type}")
 
     def _trigger_callback(self, event_type, data):
         """Ejecuta callbacks registrados"""
@@ -105,12 +99,11 @@ class HardwareManager:
                     print(f"Error en callback {event_type}: {e}")
 
     def send_command(self, command):
-        """Envía comandos al hardware (para feedback, LEDs, etc.)"""
+        """Envía comandos al hardware"""
         if self.connected:
             try:
                 full_command = f"CMD:{command}\n"
                 self.client_socket.send(full_command.encode())
-                print(f"📤 Comando enviado: {command}")
             except Exception as e:
                 print(f"Error enviando comando: {e}")
 
@@ -118,4 +111,3 @@ class HardwareManager:
         self.connected = False
         if self.client_socket:
             self.client_socket.close()
-        print("🔌 Hardware desconectado")

@@ -84,24 +84,15 @@ class GameScreen:
             if self.current_phase == "waiting_shot" and self.game_state == "playing":
                 self.handle_shot(self.hardware_shot_selection)
 
-        elif data["button"] == "btn3" and data["state"]:
-            # BTN3: Regresar al menú principal
-            print("🔘 BTN3: Regresando al menú principal desde el juego")
-            self.running = False
 
     def on_palette_trigger(self, data):
         """MEJORA: Manejo robusto de detección de paletas"""
         palette_num = data["palette"]
         state = data["state"]
 
-        print(f"🎯 Paleta {palette_num} {'ACTIVADA' if state else 'DESACTIVADA'} - Fase: {self.current_phase}")
-
         # Solo procesar activaciones (state=True) durante el turno de tiro
         if state and self.current_phase == "waiting_shot" and self.game_state == "playing":
-            print(f"⚽ DISPARO DETECTADO en paleta {palette_num}")
             self.handle_shot(palette_num)
-        elif state:
-            print(f"🎯 Paleta {palette_num} activada pero ignorada (fase: {self.current_phase})")
 
     def start_cooldown(self):
         self.game_state = "cooldown"
@@ -177,23 +168,18 @@ class GameScreen:
                     if closeness > 0.8:
                         # Muy cerca del gol - 5 LEDs progresivos
                         self.hardware_manager.send_command("CELEBRATE:5")
-                        print("🎯 Casi gol! Animación de 5 LEDs")
                     elif closeness > 0.6:
                         # Cerca del gol - 4 LEDs progresivos
                         self.hardware_manager.send_command("CELEBRATE:4")
-                        print("👍 Tiro cercano! Animación de 4 LEDs")
                     elif closeness > 0.4:
                         # Tiro medio - 3 LEDs progresivos
                         self.hardware_manager.send_command("CELEBRATE:3")
-                        print("👌 Tiro medio! Animación de 3 LEDs")
                     elif closeness > 0.2:
                         # Tiro lejano - 2 LEDs progresivos
                         self.hardware_manager.send_command("CELEBRATE:2")
-                        print("👎 Tiro lejano! Animación de 2 LEDs")
                     else:
                         # Muy lejos - 1 LED progresivo
                         self.hardware_manager.send_command("CELEBRATE:1")
-                        print("❌ Muy lejos! Animación de 1 LED")
 
         self.player_stats[self.current_turn]["shots"] += 1
         self.shots_taken[self.current_turn] += 1
@@ -300,10 +286,6 @@ class GameScreen:
         info_text = text_font.render("El juego comenzará en...", True, WHITE)
         self.screen.blit(info_text, (SCREEN_CENTER[0] - info_text.get_width() // 2, SCREEN_CENTER[1] - 100))
 
-        # Mostrar equipo actual
-        #team_text = header_font.render(f"Turno: {self.current_turn.upper()}", True, WHITE)
-        #self.screen.blit(team_text, (SCREEN_CENTER[0] - team_text.get_width() // 2, SCREEN_CENTER[1] + 10))
-
     def draw_shot_timer(self):
         if self.shot_timer_active and self.current_phase == "waiting_shot":
             time_left = max(0, self.shot_timeout - (pygame.time.get_ticks() - self.shot_timer))
@@ -368,6 +350,7 @@ class GameScreen:
 
         self.screen.blit(visit_shooter_text, (650, y_pos))
         self.screen.blit(visit_goalie_text, (650, y_pos + 20))
+
     def draw(self):
         if self.background_image:
             screen.blit(self.background_image, (0, 0))
@@ -457,13 +440,9 @@ class GameScreen:
         return random.choice(position_group)
 
     def check_goal(self, shot_position):
-        """Determina si es gol válido según el PDF - CORREGIDO"""
-        # DEBUG: Mostrar información para verificar
-        print(f"Tiro en paleta: {shot_position}")
-        print(f"Portero cubre: {self.goalkeeper_position}")
+        """Determina si es gol válido"""
 
         # Verificar si el tiro cayó en alguna de las paletas cubiertas por el portero
-        # self.goalkeeper_position es un array de paletas cubiertas (ej: [2, 3, 4])
         for covered_palette in self.goalkeeper_position:
             if shot_position == covered_palette:
                 return False  # Portero atajó
@@ -574,7 +553,7 @@ class GameScreen:
 
 
     def run(self):
-        """Ejecuta la pantalla de juego - CORREGIDO EL BUG"""
+        """Ejecuta la pantalla de juego"""
         while self.running:
             action = self.handle_events()
             if action != "game":

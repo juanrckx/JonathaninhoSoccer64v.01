@@ -61,18 +61,16 @@ def main():
 
     hardware_connected = False
     for attempt in range(3):
-        print(f"🔌 Intentando conexión {attempt + 1}/3...")
         hardware_connected = hardware_manager.connect()
         if hardware_connected:
             break
         time.sleep(2)
 
     if hardware_connected:
-        print("✅ Hardware conectado exitosamente")
         # Enviar comando de prueba
         hardware_manager.send_command("BLINK:3")
     else:
-        print("⚠️ Modo sin hardware - Usando controles de teclado")
+        print("Modo sin hardware - Usando controles de teclado")
 
     # Instanciar pantallas
     main_menu = MainMenu(audio_manager, hardware_manager)

@@ -216,7 +216,6 @@ class CoinTossScreen:
             # Crear copia temporal para evitar cambios durante la verificación
             button_states = self.hardware_manager.button_states.copy()
 
-            # BTN1: SOLO iniciar juego - con protección contra detección múltiple
             if button_states.get("btn1") and self.animation_state == "complete":
                 self.hardware_manager.button_states["btn1"] = False
                 return "start_game"
